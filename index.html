@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verbalbeurteilungs-Assistent Kl. 5/6 (BW)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h1, h2 {
+            color: #0056b3; /* BW Landesfarben-Anlehnung */
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-group, .category-section {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Wichtig für width: 100% */
+        }
+
+        textarea {
+            height: 200px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #0056b3;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background-color: #004494;
+        }
+
+        .gender-options label, .text-module-options label {
+            font-weight: normal;
+            display: inline-block; /* Für Radio-Buttons nebeneinander */
+            margin-right: 15px;
+        }
+        .gender-options input[type="radio"], .text-module-options input[type="radio"] {
+            width: auto;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        
+        .text-module-options div { /* Container für jeden einzelnen Radio-Button + Text */
+            margin-bottom: 8px;
+            padding: 5px;
+            border: 1px solid #eee;
+            border-radius: 3px;
+        }
+        .text-module-options div:hover {
+            background-color: #f9f9f9;
+        }
+
+        .category-section {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #fcfcfc;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Verbalbeurteilungs-Assistent Kl. 5/6 (BW)</h1>
+
+        <div id="errorDisplay" class="error-message"></div>
+
+        <div class="input-group">
+            <label for="studentName">Name des Schülers/der Schülerin:</label>
+            <input type="text" id="studentName" placeholder="Max Mustermann / Erika Mustermann">
+        </div>
+
+        <div class="input-group gender-options">
+            <label>Geschlecht:</label>
+            <input type="radio" id="genderMale" name="gender" value="male" checked>
+            <label for="genderMale">Männlich</label>
+            <input type="radio" id="genderFemale" name="gender" value="female">
+            <label for="genderFemale">Weiblich</label>
+        </div>
+
+        <hr>
+
+        <!-- Kategorie Arbeitshaltung -->
+        <div class="category-section">
+            <h2>A. Arbeitshaltung</h2>
+            <div class="input-group">
+                <label for="gradeArbeitshaltung">Note:</label>
+                <select id="gradeArbeitshaltung" data-category="Arbeitshaltung">
+                    <option value="1">Sehr Gut (1)</option>
+                    <option value="2">Gut (2)</option>
+                    <option value="3">Befriedigend (3)</option>
+                    <option value="4">Ausreichend (4)</option>
+                    <option value="5">Ungenügend (5)</option>
+                </select>
+            </div>
+            <div id="textModulesArbeitshaltung" class="text-module-options">
+                <!-- Textbausteine werden hier dynamisch eingefügt -->
+            </div>
+        </div>
+
+        <!-- Kategorie Selbstständigkeit -->
+        <div class="category-section">
+            <h2>B. Selbstständigkeit</h2>
+            <div class="input-group">
+                <label for="gradeSelbststaendigkeit">Note:</label>
+                <select id="gradeSelbststaendigkeit" data-category="Selbstständigkeit">
+                    <option value="1">Sehr Gut (1)</option>
+                    <option value="2">Gut (2)</option>
+                    <option value="3">Befriedigend (3)</option>
+                    <option value="4">Ausreichend (4)</option>
+                    <option value="5">Ungenügend (5)</option>
+                </select>
+            </div>
+            <div id="textModulesSelbststaendigkeit" class="text-module-options">
+                <!-- Textbausteine werden hier dynamisch eingefügt -->
+            </div>
+        </div>
+
+        <!-- Kategorie Sozial- und Kooperationsverhalten -->
+        <div class="category-section">
+            <h2>C. Sozial- und Kooperationsverhalten</h2>
+            <div class="input-group">
+                <label for="gradeSozialverhalten">Note:</label>
+                <select id="gradeSozialverhalten" data-category="Sozialverhalten">
+                    <option value="1">Sehr Gut (1)</option>
+                    <option value="2">Gut (2)</option>
+                    <option value="3">Befriedigend (3)</option>
+                    <option value="4">Ausreichend (4)</option>
+                    <option value="5">Ungenügend (5)</option>
+                </select>
+            </div>
+            <div id="textModulesSozialverhalten" class="text-module-options">
+                <!-- Textbausteine werden hier dynamisch eingefügt -->
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="action-area">
+            <button id="generateReportButton">Beurteilung generieren und anzeigen</button>
+            <br><br>
+            <label for="reportOutput">Generierte Beurteilung:</label>
+            <textarea id="reportOutput" readonly placeholder="Die generierte Beurteilung erscheint hier..."></textarea>
+            <button id="copyReportButton">Beurteilung in Zwischenablage kopieren</button>
+        </div>
+    </div>
+
+    <script>
+        const CATEGORY_KEYS = {
+            ARBEITSHALTUNG: "Arbeitshaltung",
+            SELBSTSTAENDIGKEIT: "Selbstständigkeit",
+            SOZIALVERHALTEN: "Sozial- und Kooperationsverhalten"
+        };
+
+        // Struktur der Textbausteine
+        const textModules = [
+            // Arbeitshaltung
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 1, id: "A1.1", text: "{Name} zeigt stets eine vorbildliche Arbeitshaltung. {er_sie} arbeitet äußerst fleißig, sorgfältig und ausdauernd an allen Aufgaben und ist stets bestrebt, bestmögliche Ergebnisse zu erzielen." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 1, id: "A1.2", text: "Mit großem Engagement und bemerkenswerter Konzentration widmet sich {Name} den gestellten Aufgaben. {sein_ihr} Fleiß und {sein_ihr}e Sorgfalt sind dabei besonders hervorzuheben." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 1, id: "A1.3", text: "{Name} beeindruckt durch {sein_ihr}e durchweg hohe Lernbereitschaft und mustergültige Arbeitshaltung. {er_sie} erledigt alle Aufgaben sehr gewissenhaft und mit großer Ausdauer." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 1, id: "A1.4", text: "{Name} zeichnet sich durch eine herausragende Arbeitsmoral aus. {er_sie} erfasst Aufgaben schnell, arbeitet äußerst gründlich und zeigt eine bemerkenswerte Fähigkeit, sich auch in komplexe Inhalte intensiv einzuarbeiten." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 2, id: "A2.1", text: "{Name} zeigt eine gute Arbeitshaltung. {er_sie} arbeitet fleißig, meist sorgfältig und zielstrebig an den gestellten Aufgaben." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 2, id: "A2.2", text: "{Name} ist ein lernbereiter {Respektpronomen}, der die Aufgaben in der Regel engagiert und konzentriert bearbeitet. {sein_ihr} Fleiß und {sein_ihr}e Sorgfalt sind lobenswert." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 2, id: "A2.3", text: "{Name} arbeitet zuverlässig und gewissenhaft. {er_sie} zeigt eine gute Ausdauer und bemüht sich stets um sorgfältige Ergebnisse." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 2, id: "A2.4", text: "{Name} beteiligt sich rege am Unterricht und erledigt {sein_ihr}e Aufgaben mit durchgehend gutem Einsatz und angemessener Sorgfalt. {sein_ihr}e Lernbereitschaft ist positiv zu bewerten." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 3, id: "A3.1", text: "{Name}s Arbeitshaltung ist insgesamt zufriedenstellend. {er_sie} arbeitet in der Regel mit, benötigt aber gelegentlich Impulse, um Aufgaben sorgfältig und ausdauernd zu bearbeiten." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 3, id: "A3.2", text: "{Name} zeigt eine überwiegend positive Arbeitshaltung, lässt jedoch manchmal in Fleiß und Sorgfalt nach. Mit zusätzlicher Motivation kann {er_sie} {sein_ihr}e Leistungen steigern." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 3, id: "A3.3", text: "{Name} erledigt die gestellten Aufgaben meist, könnte aber noch mehr Ausdauer und Genauigkeit bei der Bearbeitung zeigen." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 3, id: "A3.4", text: "{Name} zeigt phasenweise guten Arbeitseinsatz, lässt sich aber auch leicht ablenken. Um konstante Ergebnisse zu erzielen, sollte {er_sie} an {sein_ihr}er Konzentration und Sorgfalt arbeiten." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 4, id: "A4.1", text: "{Name}s Arbeitshaltung weist Schwächen auf. {er_sie} arbeitet oft flüchtig und zeigt wenig Ausdauer, sodass Aufgaben häufig unvollständig oder fehlerhaft bleiben." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 4, id: "A4.2", text: "{Name} benötigt häufige Ermutigungen und Anleitung, um sich den Aufgaben zu widmen. Fleiß und Sorgfalt müssen deutlich verbessert werden." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 4, id: "A4.3", text: "Die Lernbereitschaft von {Name} ist noch entwicklungsfähig. {er_sie} lässt sich leicht ablenken und zeigt nur geringe Anstrengungsbereitschaft." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 5, id: "A5.1", text: "{Name}s Arbeitshaltung ist mangelhaft. {er_sie} zeigt kaum Fleiß oder Sorgfalt und verweigert sich häufig den gestellten Aufgaben." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 5, id: "A5.2", text: "{Name} arbeitet sehr nachlässig und ohne erkennbare Anstrengung. {er_sie} benötigt ständige und intensive Betreuung, um überhaupt tätig zu werden." },
+            { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 5, id: "A5.3", text: "Eine positive Arbeitshaltung ist bei {Name} kaum zu erkennen. {er_sie} zeigt weder Lernbereitschaft noch Ausdauer und beeinträchtigt durch {sein_ihr} Verhalten oft den Arbeitsfluss." },
+
+            // Selbstständigkeit
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 1, id: "S1.1", text: "{Name} arbeitet äußerst selbstständig und zeigt dabei ein hohes Maß an Eigeninitiative und Verantwortungsbereitschaft. {er_sie} findet kreative Lösungswege für Probleme." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 1, id: "S1.2", text: "{Name} beeindruckt durch {sein_ihr}e Fähigkeit, Aufgaben eigenverantwortlich zu planen, durchzuführen und zu reflektieren. {er_sie} ergreift von sich aus die Initiative und übernimmt gerne Verantwortung." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 1, id: "S1.3", text: "Mit großer Selbstständigkeit und Organisationsgeschick meistert {Name} auch komplexe Aufgaben. {sein_ihr}e Eigeninitiative und {sein_ihr} Verantwortungsbewusstsein sind vorbildlich." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 1, id: "S1.4", text: "{Name} organisiert {sein_ihr}e Lernprozesse hervorragend selbst und benötigt kaum Anleitung. {er_sie} zeigt große Entschlossenheit, gestellte Probleme eigenständig zu lösen und übernimmt volle Verantwortung für {sein_ihr} Handeln." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 2, id: "S2.1", text: "{Name} arbeitet gut selbstständig und zeigt Eigeninitiative. {er_sie} ist verantwortungsbewusst und kann Aufgaben strukturiert angehen." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 2, id: "S2.2", text: "{Name} erledigt Aufgaben zunehmend eigenständig und zuverlässig. {er_sie} zeigt Verantwortungsbereitschaft und bringt eigene Ideen ein." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 2, id: "S2.3", text: "Die Selbstständigkeit von {Name} ist gut ausgeprägt. {er_sie} übernimmt Verantwortung für {sein_ihr} Lernen und arbeitet zielorientiert." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 2, id: "S2.4", text: "{Name} plant {sein_ihr}e Arbeitsschritte schon recht gut und kann die meisten Aufgaben ohne ständige Hilfe bewältigen. {er_sie} zeigt dabei eine gute Portion Eigeninitiative." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 3, id: "S3.1", text: "{Name} arbeitet phasenweise selbstständig, benötigt aber noch Anleitung und Unterstützung bei der Planung und Durchführung von Aufgaben." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 3, id: "S3.2", text: "{Name} zeigt Ansätze von Eigeninitiative, könnte aber noch mehr Verantwortung für {sein_ihr}e Aufgaben übernehmen. Die Selbstorganisation ist entwicklungsfähig." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 3, id: "S3.3", text: "{Name} kann Aufgaben nach Anleitung selbstständig bearbeiten, tut sich aber schwer, eigene Lösungswege zu finden oder Initiative zu ergreifen." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 3, id: "S3.4", text: "{Name} traut sich zunehmend zu, Aufgaben selbstständig zu beginnen, fragt aber bei Unsicherheiten noch häufig nach. Die Bereitschaft, Verantwortung zu übernehmen, wächst." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 4, id: "S4.1", text: "{Name} zeigt wenig Selbstständigkeit und benötigt bei den meisten Aufgaben detaillierte Anleitung und engmaschige Kontrolle." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 4, id: "S4.2", text: "Eigeninitiative und Verantwortungsbereitschaft sind bei {Name} kaum ausgeprägt. {er_sie} wartet meist auf Anweisungen und zeigt wenig Bereitschaft, Probleme eigenständig anzugehen." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 4, id: "S4.3", text: "{Name} tut sich schwer mit selbstständigem Arbeiten und der Übernahme von Verantwortung. {sein_ihr}e Arbeitsweise ist oft unstrukturiert." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 5, id: "S5.1", text: "{Name} ist kaum in der Lage, selbstständig zu arbeiten. {er_sie} ist auf ständige Anleitung angewiesen und zeigt keinerlei Eigeninitiative oder Verantwortungsbereitschaft." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 5, id: "S5.2", text: "Selbstständiges Arbeiten und Verantwortungsübernahme stellen für {Name} eine große Überforderung dar. {er_sie} ist durchweg auf fremde Hilfe angewiesen." },
+            { category: CATEGORY_KEYS.SELBSTSTAENDIGKEIT, grade: 5, id: "S5.3", text: "{Name} zeigt keinerlei Ansätze von Selbstständigkeit. {er_sie} vermeidet jede Form von Eigenverantwortung und benötigt permanente Beaufsichtigung." },
+
+            // Sozial- und Kooperationsverhalten
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 1, id: "SK1.1", text: "{Name} ist wegen {sein_ihr}er freundlichen, hilfsbereiten und zuvorkommenden Art bei Mitschülern und Lehrkräften gleichermaßen sehr geschätzt und beliebt. {er_sie} trägt maßgeblich zu einem positiven Klassenklima bei." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 1, id: "SK1.2", text: "{Name} zeigt stets vorbildliches Sozialverhalten, ist äußerst kooperativ und übernimmt gerne Verantwortung in der Klassengemeinschaft. {er_sie} kann eigene Bedürfnisse zum Wohle der Gruppe zurückstellen." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 1, id: "SK1.3", text: "{Name} ist sehr empathisch, hilft Schwächeren unaufgefordert und setzt sich für faire Lösungen bei Meinungsverschiedenheiten ein. {er_sie} geht offen und respektvoll auf alle Mitglieder der Schulgemeinschaft zu." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 1, id: "SK1.4", text: "Durch {sein_ihr} rücksichtsvolles, faires und hilfsbereites Auftreten prägt {Name} das Klassenklima sehr positiv und wird von {sein_ihr}en Mitschülern als vertrauensvolle Ansprechperson geschätzt." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 1, id: "SK1.5", text: "{Name} integriert sich vorbildlich in die Klassengemeinschaft, zeigt ein hohes Maß an Teamfähigkeit und trägt aktiv zur Lösung von Konflikten bei. {sein_ihr} Verhalten ist stets von Fairness und Respekt geprägt." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 2, id: "SK2.1", text: "{Name} ist ein freundlicher und aufgeschlossener {Respektpronomen}, der sich gut in die Klassengemeinschaft einfügt und gerne mit anderen zusammenarbeitet." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 2, id: "SK2.2", text: "{Name} verhält sich seinen Mitschülern gegenüber hilfsbereit und kooperativ. {er_sie} ist kontaktfreudig und trägt zu einer angenehmen Atmosphäre bei." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 2, id: "SK2.3", text: "{Name} findet schnell Anschluss und pflegt einen guten Umgang mit {sein_ihr}en Mitschülern. {er_sie} zeigt sich meist rücksichtsvoll und unterstützt gemeinsame Vorhaben." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 2, id: "SK2.4", text: "{Name} ist ein anständiger und höflicher {Respektpronomen}, der durch {sein_ihr}e kameradschaftliche und hilfsbereite Art positiv auffällt." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 2, id: "SK2.5", text: "{Name} zeigt sich in der Regel teamfähig und kompromissbereit. {er_sie} ist bei Mitschülern beliebt und kann gut in Gruppen arbeiten, wobei {er_sie} sich an Absprachen hält." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 3, id: "SK3.1", text: "{Name} kommt mit {sein_ihr}en Mitschülern meist gut aus, sollte aber noch lernen, andere Meinungen konsequenter zu akzeptieren und Kompromissbereitschaft zu zeigen." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 3, id: "SK3.2", text: "{Name} ist um ein gutes Verhältnis zu {sein_ihr}en Mitschülern bemüht, verhält sich aber nicht immer kooperativ. {er_sie} hilft, wenn {er_sie} darum gebeten wird." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 3, id: "SK3.3", text: "{Name} fügt sich überwiegend gut in die Klassengemeinschaft ein, könnte sich aber noch aktiver an gemeinsamen Aufgaben beteiligen und mehr Rücksicht auf andere nehmen." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 3, id: "SK3.4", text: "{Name} tritt im Allgemeinen korrekt auf, reagiert aber manchmal unüberlegt oder vertritt {sein_ihr}e Meinung zu stark, ohne die Bedürfnisse anderer zu berücksichtigen." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 3, id: "SK3.5", text: "{Name} findet langsam seinen Platz in der Klassengemeinschaft. In Partner- oder Gruppenarbeiten kooperiert {er_sie} meist, benötigt aber manchmal klare Strukturen und Anreize zur aktiven Teilnahme." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 4, id: "SK4.1", text: "{Name}s Verhalten gegenüber Mitschülern und Lehrkräften ist nicht immer angemessen. {er_sie} reagiert manchmal ungeduldig oder respektlos und hat Schwierigkeiten, Regeln einzuhalten." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 4, id: "SK4.2", text: "{Name} hat mitunter Probleme im Umgang mit {sein_ihr}en Mitschülern und provoziert gelegentlich Konflikte. {er_sie} muss lernen, die Gefühle anderer mehr zu achten." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 4, id: "SK4.3", text: "{Name} bemüht sich phasenweise um ein angemessenes Verhalten, zeigt aber im Umgang mit anderen nicht immer die nötige Ernsthaftigkeit und Toleranz. Es fällt {ihm_ihr} schwer, eigene Bedürfnisse zurückzustellen." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 4, id: "SK4.4", text: "{Name} könnte durch ein rücksichtsvolleres und faireres Verhalten {sein_ihr}e Anerkennung in der Klasse steigern. {er_sie} benötigt Unterstützung, um Konflikte konstruktiv zu lösen." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 4, id: "SK4.5", text: "{Name} zieht sich oft zurück und beteiligt sich wenig am Klassengeschehen. Im Umgang mit Mitschülern ist {er_sie} manchmal unsicher oder abweisend, was die Zusammenarbeit erschwert." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 5, id: "SK5.1", text: "{Name}s Verhalten gibt häufig Anlass zu Kritik und entspricht oft nicht den Anforderungen des Schulalltags. Respektloses Auftreten und das Provozieren von Konflikten sind leider an der Tagesordnung." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 5, id: "SK5.2", text: "{Name} zeigt kaum Verständnis oder Hilfsbereitschaft und verhält sich gegenüber Mitschülern oft rücksichtslos und impulsiv, teilweise auch aggressiv." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 5, id: "SK5.3", text: "Es gelingt {Name} nicht, sich angemessen in die Klassengemeinschaft einzufügen. {sein_ihr} Verhalten führt häufig zu Auseinandersetzungen, die das Eingreifen von Lehrkräften erfordern." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 5, id: "SK5.4", text: "{Name} zeigt kaum Bereitschaft, Regeln zu akzeptieren oder Rücksicht auf andere zu nehmen. {er_sie} lehnt kooperative Arbeitsformen meist ab und isoliert sich." },
+            { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 5, id: "SK5.5", text: "{Name} stört häufig den Unterricht und missachtet wiederholt Anweisungen von Lehrkräften sowie grundlegende Regeln des Zusammenlebens, wodurch das Lernklima für alle stark beeinträchtigt wird." }
+        ];
+
+        // DOM-Elemente
+        const studentNameInput = document.getElementById('studentName');
+        const reportOutput = document.getElementById('reportOutput');
+        const errorDisplay = document.getElementById('errorDisplay');
+
+        const gradeSelects = {
+            [CATEGORY_KEYS.ARBEITSHALTUNG]: document.getElementById('gradeArbeitshaltung'),
+            [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: document.getElementById('gradeSelbststaendigkeit'),
+            [CATEGORY_KEYS.SOZIALVERHALTEN]: document.getElementById('gradeSozialverhalten')
+        };
+
+        const textModuleContainers = {
+            [CATEGORY_KEYS.ARBEITSHALTUNG]: document.getElementById('textModulesArbeitshaltung'),
+            [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: document.getElementById('textModulesSelbststaendigkeit'),
+            [CATEGORY_KEYS.SOZIALVERHALTEN]: document.getElementById('textModulesSozialverhalten')
+        };
+
+        // Funktion zur Pronomen-Ersetzung
+        function getPronouns(gender) {
+            if (gender === 'male') {
+                return {
+                    "{er_sie}": "er",
+                    "{sein_ihr}": "sein",
+                    "{ihn_sie}": "ihn",
+                    "{ihm_ihr}": "ihm",
+                    "{Respektpronomen}": "der Schüler"
+                };
+            } else { // female
+                return {
+                    "{er_sie}": "sie",
+                    "{sein_ihr}": "ihr",
+                    "{ihn_sie}": "sie",
+                    "{ihm_ihr}": "ihr",
+                    "{Respektpronomen}": "die Schülerin"
+                };
+            }
+        }
+
+        // Funktion zum Personalisieren eines Textbausteins
+        function personalizeText(text, studentName, pronouns) {
+            let personalized = text.replace(/{Name}/g, studentName);
+            for (const placeholder in pronouns) {
+                personalized = personalized.replace(new RegExp(placeholder.replace(/([\{\}])/g, "\\$1"), 'g'), pronouns[placeholder]);
+            }
+            return personalized;
+        }
+
+        // Funktion zum Anzeigen der Textbausteine für eine Kategorie und Note
+        function displayTextModules(categoryKey, grade) {
+            const container = textModuleContainers[categoryKey];
+            container.innerHTML = ''; // Alte Bausteine löschen
+
+            const relevantModules = textModules.filter(
+                module => module.category === categoryKey && module.grade === parseInt(grade)
+            );
+
+            relevantModules.forEach((module, index) => {
+                const div = document.createElement('div');
+                const radioId = `${categoryKey.replace(/\s+/g, '')}-${grade}-${index}`; // Eindeutige ID
+                
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `textModule-${categoryKey}`;
+                radio.value = module.text; // Wir speichern den rohen Text als Wert
+                radio.id = radioId;
+                if (index === 0) { // Den ersten Baustein vorauswählen
+                    radio.checked = true;
+                }
+
+                const label = document.createElement('label');
+                label.htmlFor = radioId;
+                label.textContent = module.text; // Hier wird der Text mit Platzhaltern angezeigt
+
+                div.appendChild(radio);
+                div.appendChild(label);
+                container.appendChild(div);
+            });
+        }
+
+        // Event Listener für Notenauswahl
+        Object.values(gradeSelects).forEach(selectElement => {
+            selectElement.addEventListener('change', (event) => {
+                const categoryKey = event.target.dataset.category;
+                const selectedGrade = event.target.value;
+                displayTextModules(categoryKey, selectedGrade);
+            });
+        });
+        
+        // Initiales Laden der Textbausteine für die Standardnote (1)
+        function initializeTextModules() {
+            Object.keys(CATEGORY_KEYS).forEach(keyName => {
+                const categoryKey = CATEGORY_KEYS[keyName];
+                const initialGrade = gradeSelects[categoryKey].value;
+                displayTextModules(categoryKey, initialGrade);
+            });
+        }
+
+
+        // Event Listener für "Beurteilung generieren"
+        document.getElementById('generateReportButton').addEventListener('click', () => {
+            errorDisplay.textContent = ''; // Fehleranzeige zurücksetzen
+            const name = studentNameInput.value.trim();
+            const genderRadio = document.querySelector('input[name="gender"]:checked');
+
+            // Validierung
+            if (!name) {
+                errorDisplay.textContent = "Bitte geben Sie den Namen des Schülers/der Schülerin ein.";
+                studentNameInput.focus();
+                return;
+            }
+            if (!genderRadio) {
+                errorDisplay.textContent = "Bitte wählen Sie das Geschlecht aus.";
+                return;
+            }
+            const gender = genderRadio.value;
+            const pronouns = getPronouns(gender);
+
+            let report = `Zur allgemeinen Beurteilung von ${name} lässt sich für die aktuelle Beurteilungsperiode Folgendes festhalten:\n\n`;
+            let allCategoriesSelected = true;
+
+            // Arbeitshaltung
+            const selectedArbeitshaltungRadio = document.querySelector('input[name="textModule-Arbeitshaltung"]:checked');
+            if (!selectedArbeitshaltungRadio) {
+                allCategoriesSelected = false;
+            } else {
+                const arbeitshaltungText = personalizeText(selectedArbeitshaltungRadio.value, name, pronouns);
+                report += `Im Bereich der Arbeitshaltung ${arbeitshaltungText}\n\n`;
+            }
+
+            // Selbstständigkeit
+            const selectedSelbststaendigkeitRadio = document.querySelector('input[name="textModule-Selbstständigkeit"]:checked');
+            if (!selectedSelbststaendigkeitRadio) {
+                allCategoriesSelected = false;
+            } else {
+                const selbststaendigkeitText = personalizeText(selectedSelbststaendigkeitRadio.value, name, pronouns);
+                let linkingPhraseSelbst = "Hinsichtlich {sein_ihr}er Selbstständigkeit ist festzustellen, dass ";
+                linkingPhraseSelbst = personalizeText(linkingPhraseSelbst, name, pronouns); // Personalisiere auch den Einleitungssatz
+                report += `${linkingPhraseSelbst}${selbststaendigkeitText}\n\n`;
+            }
+
+            // Sozial- und Kooperationsverhalten
+            const selectedSozialverhaltenRadio = document.querySelector('input[name="textModule-Sozial- und Kooperationsverhalten"]:checked');
+            if (!selectedSozialverhaltenRadio) {
+                allCategoriesSelected = false;
+            } else {
+                const sozialverhaltenText = personalizeText(selectedSozialverhaltenRadio.value, name, pronouns);
+                let linkingPhraseSozial = "Das Sozial- und Kooperationsverhalten von {Name} gestaltet sich wie folgt: ";
+                linkingPhraseSozial = personalizeText(linkingPhraseSozial, name, pronouns); // Personalisiere auch den Einleitungssatz
+                report += `${linkingPhraseSozial}${sozialverhaltenText}\n`; // Kein doppelter Zeilenumbruch am Ende
+            }
+            
+            if (!allCategoriesSelected) {
+                 errorDisplay.textContent = "Bitte wählen Sie für jede Kategorie einen Textbaustein aus. (Scrollen Sie ggf. hoch, um die Notenauswahl und Bausteine zu sehen.)";
+                return;
+            }
+
+            reportOutput.value = report.trim();
+        });
+
+        // Event Listener für "Kopieren"-Button
+        document.getElementById('copyReportButton').addEventListener('click', () => {
+            if (reportOutput.value) {
+                navigator.clipboard.writeText(reportOutput.value)
+                    .then(() => {
+                        alert('Beurteilung wurde in die Zwischenablage kopiert!');
+                    })
+                    .catch(err => {
+                        console.error('Fehler beim Kopieren: ', err);
+                        alert('Fehler beim Kopieren in die Zwischenablage.');
+                    });
+            } else {
+                alert('Es gibt keine Beurteilung zum Kopieren.');
+            }
+        });
+
+        // Beim Laden der Seite:
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTextModules();
+        });
+
+    </script>
+</body>
+</html>
+
+    
