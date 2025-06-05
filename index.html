@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verbalbeurteilungs-Assistent V1.1</title>
+    <title>Verbalbeurteilungs-Assistent V1.2</title>
     <style>
 :root {
     --primary-color: #60a38f;  
     --primary-dark: #3d6358;
-    --primary-light: #dcf5ed; 
+    --primary-light: #e4f2ee; 
     --secondary-color: #6c757d;
     /* Stufenfarben für den Slider (Noten 1-6) */
     --level-1-color: #007bff; /* Sehr Gut (Blau) */
@@ -111,7 +111,7 @@ body {
 .form-control:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); 
+    box-shadow: 0 0 0 0.2rem rgba(96, 163, 143, 0.25); /* Adjusted shadow color to match new primary */
 }
 
 .gender-options {
@@ -127,12 +127,20 @@ body {
     cursor: pointer;
 }
 
+/* NEU: Styling für die Radio Buttons */
+.radio-option input[type="radio"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
 .radio-label {
     font-size: 1rem;
 }
 
 .error-message-display {
-    color: var(--level-6-color); /* Use error color */
+    color: var(--level-6-color);
     font-size: 0.875rem;
     margin-top: 0.25rem;
     display: block;
@@ -225,7 +233,6 @@ body {
     border-radius: 0.25rem;
     outline: none;
     -webkit-appearance: none;
-    /* NEU: Farbverlauf umgekehrt (6 links, 1 rechts) */
     background: linear-gradient(to right, 
         var(--level-6-color) 0%, var(--level-6-color) 16.0%,    /* Note 6 */
         var(--level-5-color) 16.7%, var(--level-5-color) 32.7%,  /* Note 5 */
@@ -336,15 +343,17 @@ body {
 .result-container.hidden { display: none; }
 
 .result-text-area {
+    width: 100%; /* Ensure it fills the container */
     background-color: #e9ecef; 
     padding: 1rem;
     border-radius: var(--border-radius);
     line-height: 1.7; 
-    font-size: 1rem; 
+    font-size: 1rem;
+    font-family: inherit; /* Use body font */
     min-height: 7.5rem; 
     border: 1px solid var(--border-color); 
     margin-bottom: 0.75rem;
-    white-space: pre-wrap;
+    resize: vertical; /* Allow vertical resizing */
 }
 
 .footer {
@@ -369,7 +378,7 @@ body {
     <header class="header">
         <div class="container">
             <h1>Verbalbeurteilungs-Assistent</h1>
-            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V1.1)</p>
+            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V1.2)</p>
         </div>
     </header>
     
@@ -419,7 +428,8 @@ body {
                 </button>
             </div>
             <div class="card__body">
-                <div id="result-text-area" class="result-text-area"></div>
+                <!-- GEÄNDERT: div wurde zu einer editierbaren textarea -->
+                <textarea id="result-text-area" class="result-text-area"></textarea>
             </div>
         </section>
     </main>
@@ -438,7 +448,6 @@ body {
         };
         const categoryOrder = [CATEGORY_KEYS.ARBEITSHALTUNG, CATEGORY_KEYS.SELBSTSTAENDIGKEIT, CATEGORY_KEYS.SOZIALVERHALTEN];
         
-        // Die Noten-Skala: 1 = Sehr gut, 6 = Ungenügend
         const SHARED_LEVEL_LABELS = { 
             1: "Sehr gut",
             2: "Gut",
@@ -453,8 +462,8 @@ body {
                 name: "Arbeitshaltung",
                 description: "Motivation, Ausdauer und Konzentration",
                 traits: [
-                    { id: 'fleiss_ansatz', label: 'Motivation & Aufgabenbeginn', default: 3, // Standard Note 3
-                        levels: { // NEU: Formulierungen überarbeitet für klarere Abgrenzung
+                    { id: 'fleiss_ansatz', label: 'Motivation & Aufgabenbeginn', default: 3,
+                        levels: {
                             6: "zeigt auch nach mehrfacher Aufforderung kaum Bereitschaft, mit Aufgaben zu beginnen",
                             5: "beginnt mit Aufgaben oft erst nach wiederholter Aufforderung und wirkt dabei wenig motiviert",
                             4: "benötigt häufiger einen Anstoß, um mit einer Aufgabe zu beginnen",
@@ -463,7 +472,7 @@ body {
                             1: "zeigt eine hohe Eigenmotivation und beginnt stets umgehend und zielgerichtet mit neuen Aufgaben"
                         }, levelLabels: SHARED_LEVEL_LABELS },
                     { id: 'fleiss_durchfuehrung', label: 'Anstrengungsbereitschaft', default: 3,
-                        levels: { // NEU: Formulierungen überarbeitet für klarere Abgrenzung
+                        levels: {
                             6: "verweigert häufig die Bearbeitung von Aufgaben oder bricht bei ersten Schwierigkeiten sofort ab",
                             5: "zeigt bei der Bearbeitung von Aufgaben nur geringe Ausdauer und gibt bei Schwierigkeiten schnell auf",
                             4: "arbeitet bei einfachen Aufgaben ausdauernd, bei größeren Herausforderungen lässt die Anstrengung jedoch nach",
@@ -475,8 +484,8 @@ body {
                         levels: { 
                             6: "geht durchweg sehr unachtsam und oft zerstörerisch mit Arbeitsmaterialien um",
                             5: "geht oft unachtsam mit Arbeitsmaterialien um und muss häufiger ermahnt werden", 
-                            4: "sollte noch sorgsamer mit {sein_ihr}en Arbeitsmaterialien umgehen", // NEU: Positiver formuliert
-                            3: "geht in der Regel sorgfältig mit {sein_ihr}en Arbeitsmaterialien um", // NEU: Positiver formuliert
+                            4: "sollte noch sorgsamer mit {sein_ihr}en Arbeitsmaterialien umgehen",
+                            3: "geht in der Regel sorgfältig mit {sein_ihr}en Arbeitsmaterialien um",
                             2: "geht gut und ordentlich mit {sein_ihr}en Arbeitsmaterialien um", 
                             1: "geht stets vorbildlich sorgfältig und verantwortungsbewusst mit Arbeitsmaterialien um"
                         }, levelLabels: SHARED_LEVEL_LABELS },
@@ -484,8 +493,8 @@ body {
                         levels: { 
                             6: "arbeitet durchweg flüchtig und mit vielen Fehlern",
                             5: "arbeitet häufig mit mangelnder Genauigkeit bei Aufgaben", 
-                            4: "arbeitet bei der Ausführung oft noch nicht durchgängig genau", // NEU: Positiver formuliert
-                            3: "erledigt Aufgaben mit einer im Großen und Ganzen angemessenen Genauigkeit", // NEU: Positiver formuliert
+                            4: "arbeitet bei der Ausführung oft noch nicht durchgängig genau",
+                            3: "erledigt Aufgaben mit einer im Großen und Ganzen angemessenen Genauigkeit",
                             2: "erledigt Aufgaben mit guter Genauigkeit", 
                             1: "zeichnet sich durch eine sehr genaue und sorgfältige Arbeitsweise aus" 
                         }, levelLabels: SHARED_LEVEL_LABELS },
@@ -493,8 +502,8 @@ body {
                         levels: { 
                             6: "kann sich auch bei kurzen Aufgaben kaum konzentrieren",
                             5: "hat deutliche Schwierigkeiten, sich länger zu konzentrieren", 
-                            4: "kann die Konzentration oft nur für eine kurze Zeitspanne aufrechterhalten", // NEU: Positiver formuliert
-                            3: "zeigt eine dem Alter angemessene Konzentrationsspanne", // NEU: Positiver formuliert
+                            4: "kann die Konzentration oft nur für eine kurze Zeitspanne aufrechterhalten",
+                            3: "zeigt eine dem Alter angemessene Konzentrationsspanne",
                             2: "kann sich auch bei längeren Aufgaben gut konzentrieren", 
                             1: "kann auch über längere Phasen sehr konzentriert und fokussiert arbeiten" 
                         }, levelLabels: SHARED_LEVEL_LABELS }, 
@@ -502,8 +511,8 @@ body {
                         levels: { 
                             6: "lässt sich ständig ablenken und stört dabei auch andere",
                             5: "lässt sich sehr leicht ablenken und findet schwer zur Aufgabe zurück",
-                            4: "lässt sich noch oft von äußeren Reizen ablenken, findet aber zumeist zur Aufgabe zurück", // NEU: Positiver formuliert
-                            3: "lässt sich nur gelegentlich ablenken und kann sich dann wieder auf die Arbeit fokussieren", // NEU: Positiver formuliert
+                            4: "lässt sich noch oft von äußeren Reizen ablenken, findet aber zumeist zur Aufgabe zurück",
+                            3: "lässt sich nur gelegentlich ablenken und kann sich dann wieder auf die Arbeit fokussieren",
                             2: "lässt sich kaum von äußeren Reizen ablenken",
                             1: "lässt sich auch bei Störungen kaum von der Tätigkeit abbringen und arbeitet unbeirrt weiter" 
                         }, levelLabels: SHARED_LEVEL_LABELS }
@@ -517,17 +526,17 @@ body {
                         levels: {
                             6: "zeigt keinerlei Eigeninitiative und beteiligt sich nicht an der Ideenfindung",
                             5: "zeigt selten Eigeninitiative bei der Ideenfindung",
-                            4: "bringt sich noch selten mit eigenen Ideen ein, greift aber Anregungen auf", // NEU: Positiver formuliert
-                            3: "bringt gelegentlich eigene, passende Ideen in den Unterricht ein", // NEU: Positiver formuliert
+                            4: "bringt sich noch selten mit eigenen Ideen ein, greift aber Anregungen auf",
+                            3: "bringt gelegentlich eigene, passende Ideen in den Unterricht ein",
                             2: "bringt oft gute eigene Ideen ein und sucht nach kreativen Lösungswegen", 
                             1: "zeichnet sich durch hohe Eigeninitiative bei der Ideenfindung und kreative Ansätze aus"
                         }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'eigeninitiative_umsetzung', label: 'Selbstständige Umsetzung', default: 3, defaultChecked: false, // NEU: Nicht mehr standardmäßig ausgewählt
+                    { id: 'eigeninitiative_umsetzung', label: 'Selbstständige Umsetzung', default: 3, defaultChecked: false,
                         levels: {
                             6: "benötigt bei jedem Schritt detaillierte Anleitung und Kontrolle",
                             5: "wartet meist auf detaillierte Anweisungen, bevor {er_sie} tätig wird", 
-                            4: "benötigt noch oft Anleitung, um Aufgaben eigenständig umzusetzen", // NEU: Positiver formuliert
-                            3: "setzt Aufgaben nach einer Anleitung in der Regel selbstständig um", // NEU: Positiver formuliert
+                            4: "benötigt noch oft Anleitung, um Aufgaben eigenständig umzusetzen",
+                            3: "setzt Aufgaben nach einer Anleitung in der Regel selbstständig um",
                             2: "setzt Ideen engagiert und selbstständig um", 
                             1: "setzt Ideen eigenverantwortlich und zielgerichtet um" 
                         }, levelLabels: SHARED_LEVEL_LABELS },
@@ -535,7 +544,7 @@ body {
                         levels: {
                             6: "vergisst Materialien und Termine durchgängig und zeigt kein Bemühen um Besserung",
                             5: "zeigt erhebliche Nachlässigkeit im Umgang mit Material und Terminen", 
-                            4: "muss noch zuverlässiger auf {sein_ihr}e Materialien und Termine achten", // NEU: Positiver formuliert
+                            4: "muss noch zuverlässiger auf {sein_ihr}e Materialien und Termine achten",
                             3: "achtet meist auf die Vollständigkeit {sein_ihr}er Materialien und die Einhaltung von Terminen", 
                             2: "geht verantwortungsvoll mit Materialien um und hält Termine zuverlässig ein", 
                             1: "zeigt große Zuverlässigkeit und Sorgfalt im Umgang mit Materialien und Terminen" 
@@ -550,8 +559,8 @@ body {
                         levels: { 
                             6: "verweigert häufig die Zusammenarbeit oder stört Gruppenprozesse erheblich",
                             5: "hält sich in Teamarbeit oft zurück oder beteiligt sich nur passiv",
-                            4: "sollte sich noch aktiver und konstruktiver in Gruppenprozesse einbringen", // NEU: Positiver formuliert
-                            3: "arbeitet in der Regel kooperativ und konstruktiv in Gruppen mit", // NEU: Positiver formuliert
+                            4: "sollte sich noch aktiver und konstruktiver in Gruppenprozesse einbringen",
+                            3: "arbeitet in der Regel kooperativ und konstruktiv in Gruppen mit",
                             2: "zeigt sich als kooperatives und geschätztes Mitglied in Arbeitsgruppen",
                             1: "bringt sich stets konstruktiv, engagiert und rücksichtsvoll in Teams ein"
                         }, levelLabels: SHARED_LEVEL_LABELS },
@@ -559,8 +568,8 @@ body {
                         levels: {
                             6: "missachtet Regeln häufig und bewusst",
                             5: "beachtet Absprachen und Regeln oft nicht und benötigt häufige Ermahnungen",
-                            4: "muss noch konsequenter auf gemeinsame Regeln und Absprachen achten", // NEU: Positiver formuliert
-                            3: "hält sich im Allgemeinen an getroffene Absprachen und Regeln", // NEU: Positiver formuliert
+                            4: "muss noch konsequenter auf gemeinsame Regeln und Absprachen achten",
+                            3: "hält sich im Allgemeinen an getroffene Absprachen und Regeln",
                             2: "achtet auf die Einhaltung von Gruppenregeln und Absprachen",
                             1: "achtet vorbildlich auf Regeln und unterstützt andere dabei"
                         }, levelLabels: SHARED_LEVEL_LABELS },
@@ -568,8 +577,8 @@ body {
                         levels: {
                             6: "zeigt keinerlei Hilfsbereitschaft und verhält sich oft egoistisch",
                             5: "zeigt selten von sich aus Hilfsbereitschaft", 
-                            4: "könnte noch häufiger von sich aus Hilfe anbieten und auf andere zugehen", // NEU: Positiver formuliert
-                            3: "ist hilfsbereit, wenn {er_sie} um Unterstützung gebeten wird", // NEU: Positiver formuliert
+                            4: "könnte noch häufiger von sich aus Hilfe anbieten und auf andere zugehen",
+                            3: "ist hilfsbereit, wenn {er_sie} um Unterstützung gebeten wird",
                             2: "bietet Mitschülern bereitwillig und oft unaufgefordert Hilfe an", 
                             1: "zeichnet sich durch große Hilfsbereitschaft und ein ausgeprägtes Einfühlungsvermögen aus" 
                         }, levelLabels: SHARED_LEVEL_LABELS },
@@ -577,7 +586,7 @@ body {
                         levels: {
                             6: "zeigt keinerlei Einfühlungsvermögen und reagiert oft unangemessen auf andere",
                             5: "zeigt kaum Einfühlungsvermögen in die Belange anderer",
-                            4: "sollte noch lernen, die Bedürfnisse und Gefühle anderer besser wahrzunehmen", // NEU: Positiver formuliert
+                            4: "sollte noch lernen, die Bedürfnisse und Gefühle anderer besser wahrzunehmen",
                             3: "zeigt grundlegendes Einfühlungsvermögen in die Situation anderer",
                             2: "zeigt gutes Einfühlungsvermögen für die Anliegen und Gefühle anderer",
                             1: "geht stets sehr einfühlsam und verständnisvoll auf {sein_ihr}e Mitschüler ein" 
@@ -647,10 +656,6 @@ body {
 
                 const traitsListEl = categoryCard.querySelector('.traits-list');
                 categoryData.traits.forEach(trait => {
-                    // NEU: Logik zur Umkehrung des Slider-Wertes.
-                    // Der Note (1=sehr gut, 6=ungenügend) wird ein Slider-Wert (1=links, 6=rechts) zugeordnet.
-                    // Formel: sliderValue = 7 - noteValue.
-                    // So entspricht Note 1 (beste) dem Slider-Wert 6 (rechts), Note 6 (schlechteste) dem Slider-Wert 1 (links).
                     const defaultNote = trait.default;
                     const defaultSliderValue = 7 - defaultNote;
 
@@ -679,7 +684,6 @@ body {
                     const checkbox = traitItemEl.querySelector('input[type="checkbox"]');
                     const controls = traitItemEl.querySelector('.trait-controls');
                     
-                    // NEU: Checkbox wird nur aktiviert, wenn nicht explizit deaktiviert (`defaultChecked: false`)
                     const isCheckedByDefault = trait.defaultChecked !== false;
                     checkbox.checked = isCheckedByDefault;
 
@@ -723,7 +727,8 @@ body {
             if (isValid) {
                 generateAssessmentTextInternal();
             } else {
-                resultTextEl.textContent = "Bitte korrigieren Sie die Eingabefehler oder wählen Sie Aspekte aus.";
+                // GEÄNDERT: .textContent zu .value
+                resultTextEl.value = "Bitte korrigieren Sie die Eingabefehler oder wählen Sie Aspekte aus.";
                 resultSectionEl.classList.remove('hidden'); 
             }
         }
@@ -758,7 +763,7 @@ body {
                 traitItemEl.classList.add('trait-item--active');
                 const slider = controls.querySelector('input[type="range"]');
                 const sliderValue = parseInt(slider.value);
-                const noteValue = 7 - sliderValue; // Wert umkehren
+                const noteValue = 7 - sliderValue;
                 selectedTraitsData[catKey][traitId] = noteValue;
                 updateTraitPreview(catKey, traitId, noteValue);
             } else {
@@ -777,7 +782,7 @@ body {
             const catKey = slider.dataset.categoryKey;
             const traitId = slider.dataset.traitId;
             const sliderValue = parseInt(slider.value);
-            const noteValue = 7 - sliderValue; // NEU: Den Slider-Wert in die Note umrechnen
+            const noteValue = 7 - sliderValue;
             
             if (selectedTraitsData[catKey] && selectedTraitsData[catKey].hasOwnProperty(traitId)) {
                  selectedTraitsData[catKey][traitId] = noteValue;
@@ -933,7 +938,8 @@ body {
             const clauseQueue = populateClauseQueue(studentName, genderValue);
             
             if (clauseQueue.length === 0) {
-                resultTextEl.textContent = "Keine Aspekte für die Beurteilung ausgewählt.";
+                // GEÄNDERT: .textContent zu .value
+                resultTextEl.value = "Keine Aspekte für die Beurteilung ausgewählt.";
                 resultSectionEl.classList.remove('hidden');
                 return;
             }
@@ -998,7 +1004,6 @@ body {
                     let conjunction = "und";
                     const val1 = clausesForCurrentSentence[0].value;
                     const val2 = clausesForCurrentSentence[1].value;
-                    // "Aber"-Logik: Stufe 1-3 (gut - befriedigend) vs. 4-6 (ausreichend - ungenügend)
                     if ((val1 <= 3 && val2 >= 4) || (val1 >= 4 && val2 <= 3)) { 
                         conjunction = "aber";
                     }
@@ -1007,12 +1012,14 @@ body {
                 finalSentences.push(`${sentenceStartText} ${combinedClausesOutput}.`);
             }
             
-            resultTextEl.textContent = finalSentences.join(" ").trim();
+            // GEÄNDERT: .textContent zu .value
+            resultTextEl.value = finalSentences.join(" ").trim();
             resultSectionEl.classList.remove('hidden');
         }
 
         function copyToClipboard() {
-            const textToCopy = resultTextEl.textContent;
+            // GEÄNDERT: .textContent zu .value, um manuelle Änderungen zu erfassen
+            const textToCopy = resultTextEl.value;
             if (navigator.clipboard && textToCopy) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     const copyTextSpan = document.getElementById('copy-text');
