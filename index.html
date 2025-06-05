@@ -1,53 +1,81 @@
+      
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verbalbeurteilungs-Assistent Kl. 5/6 (BW)</title>
     <style>
+        :root {
+            --primary-color: #007bff; /* Ein frischeres Blau */
+            --secondary-color: #6c757d;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #343a40;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --border-radius: 0.3rem;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: var(--font-family);
             line-height: 1.6;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
+            margin: 0;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            padding: 20px;
         }
 
         .container {
             background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            margin: auto;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 850px;
+            margin: 20px auto;
         }
 
-        h1, h2 {
-            color: #0056b3; /* BW Landesfarben-Anlehnung */
-        }
-        
         h1 {
+            color: var(--primary-color);
             text-align: center;
             margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        h2 {
+            color: var(--dark-gray);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-weight: 500;
         }
 
         .input-group, .category-section {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
         }
 
-        input[type="text"], select, textarea {
+        input[type="text"], textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box; /* Wichtig für width: 100% */
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+            outline: none;
         }
 
         textarea {
@@ -56,61 +84,127 @@
         }
 
         button {
-            background-color: #0056b3;
+            background-color: var(--primary-color);
             color: white;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
             margin-right: 10px;
-            margin-top: 5px;
+            margin-top: 10px;
         }
 
         button:hover {
-            background-color: #004494;
-        }
-
-        .gender-options label, .text-module-options label {
-            font-weight: normal;
-            display: inline-block; /* Für Radio-Buttons nebeneinander */
-            margin-right: 15px;
-        }
-        .gender-options input[type="radio"], .text-module-options input[type="radio"] {
-            width: auto;
-            margin-right: 5px;
-            vertical-align: middle;
+            background-color: #0056b3; /* Dunkleres Primärblau */
         }
         
-        .text-module-options div { /* Container für jeden einzelnen Radio-Button + Text */
-            margin-bottom: 8px;
-            padding: 5px;
-            border: 1px solid #eee;
-            border-radius: 3px;
+        button.secondary {
+            background-color: var(--secondary-color);
         }
-        .text-module-options div:hover {
-            background-color: #f9f9f9;
+        button.secondary:hover {
+            background-color: #545b62;
         }
 
+        .gender-options label, .text-module-options label, .grade-options label {
+            font-weight: normal;
+            display: inline-flex; /* Für Radio-Buttons nebeneinander und vertikale Zentrierung */
+            align-items: center;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        .gender-options input[type="radio"], .text-module-options input[type="radio"], .grade-options input[type="radio"] {
+            width: auto;
+            margin-right: 8px;
+            accent-color: var(--primary-color); /* Färbt den Radio-Button selbst */
+        }
+        
+        .text-module-options div {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            background-color: #fff;
+            transition: background-color 0.2s;
+        }
+        .text-module-options div:hover {
+            background-color: #f0f8ff; /* Helles AliceBlue */
+        }
+        .text-module-options div input[type="radio"] {
+            vertical-align: top; /* Text neben Radio-Button besser ausgerichtet */
+            margin-top: 4px; /* Feinanpassung */
+        }
+        .text-module-options div label {
+            display: inline; /* Damit der Text neben dem Radio bleibt */
+            line-height: 1.4;
+        }
+
+
         .category-section {
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
-            background-color: #fcfcfc;
+            padding: 20px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            background-color: #fdfdfd;
         }
 
         .error-message {
-            color: red;
+            color: var(--danger-color);
             font-weight: bold;
             margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--danger-color);
+            border-radius: var(--border-radius);
+            background-color: #f8d7da;
         }
+        
+        hr {
+            border: none;
+            border-top: 1px solid var(--medium-gray);
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Horizontale Notenauswahl */
+        .grade-selection-container {
+            display: flex;
+            gap: 10px; /* Abstand zwischen den Radio-Buttons */
+            margin-bottom: 15px;
+            flex-wrap: wrap; /* Falls nicht genug Platz, umbrechen */
+        }
+        .grade-selection-container .grade-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .grade-selection-container .grade-option input[type="radio"] {
+            margin-right: 6px;
+        }
+        .grade-selection-container .grade-option:hover {
+            background-color: #e9f5ff;
+        }
+        .grade-selection-container .grade-option input[type="radio"]:checked + label {
+             /* Bereits durch accent-color abgedeckt, hier ggf. weitere Styles für den Text */
+        }
+        /* Visuelle Hervorhebung des ausgewählten Labels (optional) */
+        .grade-selection-container .grade-option input[type="radio"]:checked ~ span {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Verbalbeurteilungs-Assistent Kl. 5/6 (BW)</h1>
 
-        <div id="errorDisplay" class="error-message"></div>
+        <div id="errorDisplay" class="error-message" style="display: none;"></div>
 
         <div class="input-group">
             <label for="studentName">Name des Schülers/der Schülerin:</label>
@@ -131,14 +225,10 @@
         <div class="category-section">
             <h2>A. Arbeitshaltung</h2>
             <div class="input-group">
-                <label for="gradeArbeitshaltung">Note:</label>
-                <select id="gradeArbeitshaltung" data-category="Arbeitshaltung">
-                    <option value="1">Sehr Gut (1)</option>
-                    <option value="2">Gut (2)</option>
-                    <option value="3">Befriedigend (3)</option>
-                    <option value="4">Ausreichend (4)</option>
-                    <option value="5">Ungenügend (5)</option>
-                </select>
+                <label>Note:</label>
+                <div class="grade-selection-container" id="gradeArbeitshaltungContainer" data-category="Arbeitshaltung">
+                    <!-- Radio-Buttons für Noten werden hier per JS erstellt -->
+                </div>
             </div>
             <div id="textModulesArbeitshaltung" class="text-module-options">
                 <!-- Textbausteine werden hier dynamisch eingefügt -->
@@ -149,14 +239,10 @@
         <div class="category-section">
             <h2>B. Selbstständigkeit</h2>
             <div class="input-group">
-                <label for="gradeSelbststaendigkeit">Note:</label>
-                <select id="gradeSelbststaendigkeit" data-category="Selbstständigkeit">
-                    <option value="1">Sehr Gut (1)</option>
-                    <option value="2">Gut (2)</option>
-                    <option value="3">Befriedigend (3)</option>
-                    <option value="4">Ausreichend (4)</option>
-                    <option value="5">Ungenügend (5)</option>
-                </select>
+                <label>Note:</label>
+                <div class="grade-selection-container" id="gradeSelbststaendigkeitContainer" data-category="Selbstständigkeit">
+                    <!-- Radio-Buttons für Noten werden hier per JS erstellt -->
+                </div>
             </div>
             <div id="textModulesSelbststaendigkeit" class="text-module-options">
                 <!-- Textbausteine werden hier dynamisch eingefügt -->
@@ -167,14 +253,10 @@
         <div class="category-section">
             <h2>C. Sozial- und Kooperationsverhalten</h2>
             <div class="input-group">
-                <label for="gradeSozialverhalten">Note:</label>
-                <select id="gradeSozialverhalten" data-category="Sozialverhalten">
-                    <option value="1">Sehr Gut (1)</option>
-                    <option value="2">Gut (2)</option>
-                    <option value="3">Befriedigend (3)</option>
-                    <option value="4">Ausreichend (4)</option>
-                    <option value="5">Ungenügend (5)</option>
-                </select>
+                <label>Note:</label>
+                <div class="grade-selection-container" id="gradeSozialverhaltenContainer" data-category="Sozial- und Kooperationsverhalten">
+                    <!-- Radio-Buttons für Noten werden hier per JS erstellt -->
+                </div>
             </div>
             <div id="textModulesSozialverhalten" class="text-module-options">
                 <!-- Textbausteine werden hier dynamisch eingefügt -->
@@ -188,7 +270,7 @@
             <br><br>
             <label for="reportOutput">Generierte Beurteilung:</label>
             <textarea id="reportOutput" readonly placeholder="Die generierte Beurteilung erscheint hier..."></textarea>
-            <button id="copyReportButton">Beurteilung in Zwischenablage kopieren</button>
+            <button id="copyReportButton" class="secondary">Beurteilung in Zwischenablage kopieren</button>
         </div>
     </div>
 
@@ -199,7 +281,7 @@
             SOZIALVERHALTEN: "Sozial- und Kooperationsverhalten"
         };
 
-        // Struktur der Textbausteine
+        // Textbausteine (wie zuvor)
         const textModules = [
             // Arbeitshaltung
             { category: CATEGORY_KEYS.ARBEITSHALTUNG, grade: 1, id: "A1.1", text: "{Name} zeigt stets eine vorbildliche Arbeitshaltung. {er_sie} arbeitet äußerst fleißig, sorgfältig und ausdauernd an allen Aufgaben und ist stets bestrebt, bestmögliche Ergebnisse zu erzielen." },
@@ -269,21 +351,31 @@
             { category: CATEGORY_KEYS.SOZIALVERHALTEN, grade: 5, id: "SK5.5", text: "{Name} stört häufig den Unterricht und missachtet wiederholt Anweisungen von Lehrkräften sowie grundlegende Regeln des Zusammenlebens, wodurch das Lernklima für alle stark beeinträchtigt wird." }
         ];
 
+
         // DOM-Elemente
         const studentNameInput = document.getElementById('studentName');
+        const genderRadios = document.querySelectorAll('input[name="gender"]');
         const reportOutput = document.getElementById('reportOutput');
         const errorDisplay = document.getElementById('errorDisplay');
 
-        const gradeSelects = {
-            [CATEGORY_KEYS.ARBEITSHALTUNG]: document.getElementById('gradeArbeitshaltung'),
-            [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: document.getElementById('gradeSelbststaendigkeit'),
-            [CATEGORY_KEYS.SOZIALVERHALTEN]: document.getElementById('gradeSozialverhalten')
+        const gradeRadioContainers = {
+            [CATEGORY_KEYS.ARBEITSHALTUNG]: document.getElementById('gradeArbeitshaltungContainer'),
+            [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: document.getElementById('gradeSelbststaendigkeitContainer'),
+            [CATEGORY_KEYS.SOZIALVERHALTEN]: document.getElementById('gradeSozialverhaltenContainer')
         };
 
         const textModuleContainers = {
             [CATEGORY_KEYS.ARBEITSHALTUNG]: document.getElementById('textModulesArbeitshaltung'),
             [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: document.getElementById('textModulesSelbststaendigkeit'),
             [CATEGORY_KEYS.SOZIALVERHALTEN]: document.getElementById('textModulesSozialverhalten')
+        };
+        
+        const gradeLabels = {
+            1: "Sehr Gut (1)",
+            2: "Gut (2)",
+            3: "Befriedigend (3)",
+            4: "Ausreichend (4)",
+            5: "Ungenügend (5)"
         };
 
         // Funktion zur Pronomen-Ersetzung
@@ -309,7 +401,8 @@
 
         // Funktion zum Personalisieren eines Textbausteins
         function personalizeText(text, studentName, pronouns) {
-            let personalized = text.replace(/{Name}/g, studentName);
+            if (!text) return ""; // Guard clause
+            let personalized = text.replace(/{Name}/g, studentName || "{Name}"); // Fallback, falls Name leer
             for (const placeholder in pronouns) {
                 personalized = personalized.replace(new RegExp(placeholder.replace(/([\{\}])/g, "\\$1"), 'g'), pronouns[placeholder]);
             }
@@ -317,7 +410,7 @@
         }
 
         // Funktion zum Anzeigen der Textbausteine für eine Kategorie und Note
-        function displayTextModules(categoryKey, grade) {
+        function displayTextModules(categoryKey, grade, studentName, pronouns) {
             const container = textModuleContainers[categoryKey];
             container.innerHTML = ''; // Alte Bausteine löschen
 
@@ -327,101 +420,153 @@
 
             relevantModules.forEach((module, index) => {
                 const div = document.createElement('div');
-                const radioId = `${categoryKey.replace(/\s+/g, '')}-${grade}-${index}`; // Eindeutige ID
+                const radioId = `${categoryKey.replace(/\s+/g, '')}-${grade}-${index}`;
                 
                 const radio = document.createElement('input');
                 radio.type = 'radio';
-                radio.name = `textModule-${categoryKey}`;
-                radio.value = module.text; // Wir speichern den rohen Text als Wert
+                radio.name = `textModule-${categoryKey.replace(/\s+/g, '')}`; // Name für Radio-Gruppe
+                radio.value = module.text; // Rohtext als Wert speichern
                 radio.id = radioId;
-                if (index === 0) { // Den ersten Baustein vorauswählen
+                if (index === 0) { // Ersten Baustein vorauswählen
                     radio.checked = true;
                 }
 
                 const label = document.createElement('label');
                 label.htmlFor = radioId;
-                label.textContent = module.text; // Hier wird der Text mit Platzhaltern angezeigt
+                // Personalisiere den Text für die Anzeige
+                label.textContent = personalizeText(module.text, studentName, pronouns);
 
                 div.appendChild(radio);
                 div.appendChild(label);
                 container.appendChild(div);
             });
         }
-
-        // Event Listener für Notenauswahl
-        Object.values(gradeSelects).forEach(selectElement => {
-            selectElement.addEventListener('change', (event) => {
-                const categoryKey = event.target.dataset.category;
-                const selectedGrade = event.target.value;
-                displayTextModules(categoryKey, selectedGrade);
-            });
-        });
         
-        // Initiales Laden der Textbausteine für die Standardnote (1)
-        function initializeTextModules() {
+        // Funktion, um alle Textbaustein-Anzeigen zu aktualisieren
+        // Wird aufgerufen bei Namens- oder Geschlechtsänderung
+        function updateAllDisplayedTextModules() {
+            const name = studentNameInput.value.trim() || "Schüler/in"; // Fallback für leeren Namen
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const pronouns = getPronouns(gender);
+
             Object.keys(CATEGORY_KEYS).forEach(keyName => {
                 const categoryKey = CATEGORY_KEYS[keyName];
-                const initialGrade = gradeSelects[categoryKey].value;
-                displayTextModules(categoryKey, initialGrade);
+                const selectedGradeRadio = document.querySelector(`input[name="grade-${categoryKey.replace(/\s+/g, '')}"]:checked`);
+                if (selectedGradeRadio) {
+                    const grade = selectedGradeRadio.value;
+                    displayTextModules(categoryKey, grade, name, pronouns);
+                }
             });
+        }
+        
+        // Erstellt die horizontalen Radio-Buttons für die Notenauswahl
+        function createGradeRadioButtons() {
+            Object.keys(gradeRadioContainers).forEach(categoryKey => {
+                const container = gradeRadioContainers[categoryKey];
+                const categoryId = categoryKey.replace(/\s+/g, ''); // Für eindeutige Namen
+
+                for (let i = 1; i <= 5; i++) {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'grade-option';
+
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `grade-${categoryId}`; // Eindeutiger Name pro Kategorie
+                    radio.value = i;
+                    radio.id = `grade-${categoryId}-${i}`;
+                    if (i === 1) { // Note 1 vorauswählen
+                        radio.checked = true;
+                    }
+                    
+                    // Event Listener für Notenänderung
+                    radio.addEventListener('change', (event) => {
+                        const currentName = studentNameInput.value.trim() || "Schüler/in";
+                        const currentGender = document.querySelector('input[name="gender"]:checked').value;
+                        const currentPronouns = getPronouns(currentGender);
+                        displayTextModules(categoryKey, event.target.value, currentName, currentPronouns);
+                    });
+
+                    const label = document.createElement('label');
+                    label.htmlFor = `grade-${categoryId}-${i}`;
+                    
+                    const labelText = document.createElement('span'); // Für zusätzliches Styling des Texts
+                    labelText.textContent = gradeLabels[i];
+
+                    label.appendChild(radio); // Radio-Button in Label für besseres Klickverhalten
+                    label.appendChild(labelText);
+
+                    optionDiv.appendChild(label); // Verwende das äußere Label für das div
+                    container.appendChild(optionDiv);
+                }
+            });
+        }
+
+        // Initiales Laden der Textbausteine
+        function initializeModules() {
+            createGradeRadioButtons(); // Zuerst die Noten-Radios erstellen
+            updateAllDisplayedTextModules(); // Dann die Bausteine basierend auf Standardauswahl laden
         }
 
 
         // Event Listener für "Beurteilung generieren"
         document.getElementById('generateReportButton').addEventListener('click', () => {
-            errorDisplay.textContent = ''; // Fehleranzeige zurücksetzen
+            errorDisplay.textContent = '';
+            errorDisplay.style.display = 'none';
+
             const name = studentNameInput.value.trim();
             const genderRadio = document.querySelector('input[name="gender"]:checked');
 
             // Validierung
+            let errors = [];
             if (!name) {
-                errorDisplay.textContent = "Bitte geben Sie den Namen des Schülers/der Schülerin ein.";
-                studentNameInput.focus();
-                return;
+                errors.push("Bitte geben Sie den Namen des Schülers/der Schülerin ein.");
             }
-            if (!genderRadio) {
-                errorDisplay.textContent = "Bitte wählen Sie das Geschlecht aus.";
-                return;
+            if (!genderRadio) { // Sollte nicht passieren, da einer vorausgewählt ist
+                errors.push("Bitte wählen Sie das Geschlecht aus.");
             }
-            const gender = genderRadio.value;
+            
+            const gender = genderRadio ? genderRadio.value : 'male'; // Fallback, falls doch kein Radio
             const pronouns = getPronouns(gender);
 
-            let report = `Zur allgemeinen Beurteilung von ${name} lässt sich für die aktuelle Beurteilungsperiode Folgendes festhalten:\n\n`;
+            let report = `Zur allgemeinen Beurteilung von ${name || 'Schüler/in'} lässt sich für die aktuelle Beurteilungsperiode Folgendes festhalten:\n\n`;
             let allCategoriesSelected = true;
-
-            // Arbeitshaltung
-            const selectedArbeitshaltungRadio = document.querySelector('input[name="textModule-Arbeitshaltung"]:checked');
-            if (!selectedArbeitshaltungRadio) {
+            
+            const getSelectedModuleText = (categoryKey) => {
+                const radio = document.querySelector(`input[name="textModule-${categoryKey.replace(/\s+/g, '')}"]:checked`);
+                if (radio) {
+                    return personalizeText(radio.value, name, pronouns); // Wichtig: Hier den Rohtext personalisieren
+                }
                 allCategoriesSelected = false;
-            } else {
-                const arbeitshaltungText = personalizeText(selectedArbeitshaltungRadio.value, name, pronouns);
+                return null;
+            };
+
+            const arbeitshaltungText = getSelectedModuleText(CATEGORY_KEYS.ARBEITSHALTUNG);
+            if (arbeitshaltungText) {
                 report += `Im Bereich der Arbeitshaltung ${arbeitshaltungText}\n\n`;
             }
 
-            // Selbstständigkeit
-            const selectedSelbststaendigkeitRadio = document.querySelector('input[name="textModule-Selbstständigkeit"]:checked');
-            if (!selectedSelbststaendigkeitRadio) {
-                allCategoriesSelected = false;
-            } else {
-                const selbststaendigkeitText = personalizeText(selectedSelbststaendigkeitRadio.value, name, pronouns);
+            const selbststaendigkeitText = getSelectedModuleText(CATEGORY_KEYS.SELBSTSTAENDIGKEIT);
+            if (selbststaendigkeitText) {
                 let linkingPhraseSelbst = "Hinsichtlich {sein_ihr}er Selbstständigkeit ist festzustellen, dass ";
-                linkingPhraseSelbst = personalizeText(linkingPhraseSelbst, name, pronouns); // Personalisiere auch den Einleitungssatz
+                linkingPhraseSelbst = personalizeText(linkingPhraseSelbst, name, pronouns);
                 report += `${linkingPhraseSelbst}${selbststaendigkeitText}\n\n`;
             }
 
-            // Sozial- und Kooperationsverhalten
-            const selectedSozialverhaltenRadio = document.querySelector('input[name="textModule-Sozial- und Kooperationsverhalten"]:checked');
-            if (!selectedSozialverhaltenRadio) {
-                allCategoriesSelected = false;
-            } else {
-                const sozialverhaltenText = personalizeText(selectedSozialverhaltenRadio.value, name, pronouns);
+            const sozialverhaltenText = getSelectedModuleText(CATEGORY_KEYS.SOZIALVERHALTEN);
+            if (sozialverhaltenText) {
                 let linkingPhraseSozial = "Das Sozial- und Kooperationsverhalten von {Name} gestaltet sich wie folgt: ";
-                linkingPhraseSozial = personalizeText(linkingPhraseSozial, name, pronouns); // Personalisiere auch den Einleitungssatz
-                report += `${linkingPhraseSozial}${sozialverhaltenText}\n`; // Kein doppelter Zeilenumbruch am Ende
+                linkingPhraseSozial = personalizeText(linkingPhraseSozial, name, pronouns);
+                report += `${linkingPhraseSozial}${sozialverhaltenText}\n`;
             }
             
-            if (!allCategoriesSelected) {
-                 errorDisplay.textContent = "Bitte wählen Sie für jede Kategorie einen Textbaustein aus. (Scrollen Sie ggf. hoch, um die Notenauswahl und Bausteine zu sehen.)";
+            if (!allCategoriesSelected && errors.length === 0) { // Nur wenn Name da ist, aber Bausteine fehlen
+                 errors.push("Bitte wählen Sie für jede Kategorie einen Textbaustein aus.");
+            }
+
+            if (errors.length > 0) {
+                errorDisplay.innerHTML = errors.join("<br>");
+                errorDisplay.style.display = 'block';
+                if (!name) studentNameInput.focus();
                 return;
             }
 
@@ -433,20 +578,32 @@
             if (reportOutput.value) {
                 navigator.clipboard.writeText(reportOutput.value)
                     .then(() => {
-                        alert('Beurteilung wurde in die Zwischenablage kopiert!');
+                        // Kurze Bestätigung direkt am Button (optional)
+                        const originalText = document.getElementById('copyReportButton').textContent;
+                        document.getElementById('copyReportButton').textContent = 'Kopiert!';
+                        setTimeout(() => {
+                            document.getElementById('copyReportButton').textContent = originalText;
+                        }, 2000);
                     })
                     .catch(err => {
                         console.error('Fehler beim Kopieren: ', err);
                         alert('Fehler beim Kopieren in die Zwischenablage.');
                     });
             } else {
-                alert('Es gibt keine Beurteilung zum Kopieren.');
+                 errorDisplay.textContent = 'Es gibt keine Beurteilung zum Kopieren.';
+                 errorDisplay.style.display = 'block';
             }
+        });
+        
+        // Event Listener für Namens- und Geschlechtsänderung, um Bausteine dynamisch zu aktualisieren
+        studentNameInput.addEventListener('input', updateAllDisplayedTextModules);
+        genderRadios.forEach(radio => {
+            radio.addEventListener('change', updateAllDisplayedTextModules);
         });
 
         // Beim Laden der Seite:
         document.addEventListener('DOMContentLoaded', () => {
-            initializeTextModules();
+            initializeModules();
         });
 
     </script>
