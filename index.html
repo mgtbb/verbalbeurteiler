@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verbalbeurteilungs-Assistent (Gemini Lokal mit Key-Eingabe)</title>
+    <title>Verbalbeurteilungs-Assistent (Gemini)</title>
     <style>
 :root {
     --primary-color: #60a38f;
@@ -502,8 +502,8 @@ body {
                 </div>
                 <div class="form-group">
                     <label for="model-name-input" class="form-label">Gemini Modellname</label>
-                    <input type="text" id="model-name-input" class="form-control" placeholder="z.B. gemini-1.5-flash-latest">
-                     <small>Standard: gemini-1.5-flash-latest. Andere Modelle: gemini-pro, etc.</small>
+                    <input type="text" id="model-name-input" class="form-control" placeholder="gemini-2.5-flash-preview-05-20">
+                     <small>Standard: gemini-2.5-flash-preview-05-20. Andere Modelle: gemini-pro, etc.</small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -514,8 +514,8 @@ body {
 
     <header class="header">
         <div class="container">
-            <h1>Verbalbeurteilungs-Assistent (Gemini Lokal)</h1>
-            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V1.3 mit Key-Eingabe)</p>
+            <h1>Verbalbeurteilungs-Assistent (Gemini)</h1>
+            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V2.0.1)</p>
         </div>
     </header>
 
@@ -584,7 +584,7 @@ body {
         let genAI;
         let model;
         let currentApiKey = '';
-        let currentModelName = 'gemini-1.5-flash-latest'; // Standardmodell
+        let currentModelName = 'gemini-2.5-flash-preview-05-20'; // Standardmodell
 
         const LOCAL_STORAGE_API_KEY = 'geminiApiKey';
         const LOCAL_STORAGE_MODEL_NAME = 'geminiModelName';
@@ -628,7 +628,7 @@ body {
 
         function loadSettings() {
             const storedApiKey = localStorage.getItem(LOCAL_STORAGE_API_KEY);
-            const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-1.5-flash-latest'; // Fallback
+            const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-2.5-flash-preview-05-20'; // Fallback
 
             if (apiKeyInput) apiKeyInput.value = storedApiKey || '';
             if (modelNameInput) modelNameInput.value = storedModelName;
@@ -638,7 +638,7 @@ body {
 
         function saveSettings() {
             const newApiKey = apiKeyInput.value.trim();
-            const newModelName = modelNameInput.value.trim() || 'gemini-1.5-flash-latest'; // Fallback
+            const newModelName = modelNameInput.value.trim() || 'gemini-2.5-flash-preview-05-20'; // Fallback
 
             localStorage.setItem(LOCAL_STORAGE_API_KEY, newApiKey);
             localStorage.setItem(LOCAL_STORAGE_MODEL_NAME, newModelName);
@@ -657,7 +657,7 @@ body {
                 if (settingsModal) settingsModal.style.display = "block";
                  // Lade aktuelle Werte beim Öffnen, falls sie extern geändert wurden (unwahrscheinlich hier)
                 const storedApiKey = localStorage.getItem(LOCAL_STORAGE_API_KEY);
-                const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-1.5-flash-latest';
+                const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-2.5-flash-preview-05-20';
                 if (apiKeyInput) apiKeyInput.value = storedApiKey || '';
                 if (modelNameInput) modelNameInput.value = storedModelName;
                 if (apiKeyStatusEl) { // Status aktualisieren
