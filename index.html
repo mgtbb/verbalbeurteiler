@@ -391,6 +391,7 @@ body {
     cursor: pointer;
     font-size: 1rem;
     font-weight: 400;
+    text-decoration: none; /* Für a-Tags als Buttons */
     transition: background-color 0.15s ease-in-out, transform 0.15s ease-in-out;
     margin-right: 0.5rem;
 }
@@ -398,6 +399,7 @@ body {
 .btn:hover {
     background-color: var(--primary-dark);
     transform: translateY(-1px);
+    color: white; /* Sicherstellen, dass Textfarbe bei Hover bleibt */
 }
 .btn:disabled {
     background-color: var(--secondary-color);
@@ -418,7 +420,8 @@ body {
 }
 
 
-.btn--primary.btn--sm {
+.btn--primary.btn--sm,
+.btn--secondary.btn--sm { /* Auch für secondary small button anwenden */
     padding: 0.375rem 0.75rem;
     font-size: 0.875rem;
 }
@@ -463,11 +466,16 @@ body {
 .footer {
     text-align: center;
     margin-top: 2.5rem;
-    padding: 1rem 0;
+    padding: 1.5rem 0; /* Etwas mehr Padding für den neuen Button */
     color: var(--light-text);
     border-top: 1px solid var(--border-color);
     font-size: 0.875rem;
 }
+
+.feedback-container {
+    margin-top: 15px; /* Abstand zum Copyright */
+}
+
 
 @media (max-width: 768px) {
     body { padding: 10px; }
@@ -477,6 +485,14 @@ body {
     .card { padding: 15px; }
     .btn { display: block; width: 100%; margin-bottom: 0.5rem; margin-right: 0; }
     .trait-controls { padding-left: 0; }
+
+    .footer { padding: 1rem 0; }
+    .feedback-container { margin-top: 10px; }
+    #feedback-btn { /* Spezifisch für den Feedback Button auf Mobile */
+        display: inline-block; /* Behält Inline-Block Verhalten bei, um nicht volle Breite zu nehmen */
+        width: auto; /* Automatische Breite basierend auf Inhalt */
+        padding: 0.5rem 1rem; /* Behält ursprüngliches Padding oder das von btn--sm */
+    }
 }
     </style>
 </head>
@@ -502,8 +518,8 @@ body {
                 </div>
                 <div class="form-group">
                     <label for="model-name-input" class="form-label">Gemini Modellname</label>
-                    <input type="text" id="model-name-input" class="form-control" placeholder="gemini-2.5-flash-preview-05-20">
-                     <small>Standard: gemini-2.5-flash-preview-05-20. Andere Modelle: gemini-pro, etc.</small>
+                    <input type="text" id="model-name-input" class="form-control" placeholder="gemini-1.5-flash-latest">
+                     <small>Standard: gemini-1.5-flash-latest. Andere Modelle: gemini-pro, etc.</small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -515,7 +531,7 @@ body {
     <header class="header">
         <div class="container">
             <h1>Verbalbeurteilungs-Assistent (Gemini)</h1>
-            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V2.2)</p>
+            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V2.4)</p>
         </div>
     </header>
 
@@ -574,6 +590,11 @@ body {
     <footer class="footer">
         <div class="container">
             <p id="copyright-year">© Verbalbeurteilungs-Assistent</p>
+            <div class="feedback-container">
+                <a href="mailto:verbalbeurteiler@duck.com?subject=Feedback%20zum%20Verbalbeurteilungs-Assistenten" class="btn btn--secondary btn--sm" id="feedback-btn">
+                    Feedback & Verbesserungsvorschläge
+                </a>
+            </div>
         </div>
     </footer>
 
@@ -584,7 +605,7 @@ body {
         let genAI;
         let model;
         let currentApiKey = '';
-        let currentModelName = 'gemini-2.5-flash-preview-05-20'; // Standardmodell
+        let currentModelName = 'gemini-1.5-flash-latest'; // Standardmodell aktualisiert
 
         const LOCAL_STORAGE_API_KEY = 'geminiApiKey';
         const LOCAL_STORAGE_MODEL_NAME = 'geminiModelName';
@@ -605,7 +626,7 @@ body {
                 console.warn("Kein API Key für Gemini vorhanden.");
                 if (apiKeyStatusEl) apiKeyStatusEl.textContent = "Kein API Key gespeichert. Bitte in den Einstellungen eingeben.";
                 if (apiKeyStatusEl) apiKeyStatusEl.className = 'api-key-status invalid';
-                model = null; // Sicherstellen, dass kein altes Modell verwendet wird
+                model = null;
                 return false;
             }
             try {
@@ -628,7 +649,7 @@ body {
 
         function loadSettings() {
             const storedApiKey = localStorage.getItem(LOCAL_STORAGE_API_KEY);
-            const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-2.5-flash-preview-05-20'; // Fallback
+            const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-1.5-flash-latest';
 
             if (apiKeyInput) apiKeyInput.value = storedApiKey || '';
             if (modelNameInput) modelNameInput.value = storedModelName;
@@ -638,7 +659,7 @@ body {
 
         function saveSettings() {
             const newApiKey = apiKeyInput.value.trim();
-            const newModelName = modelNameInput.value.trim() || 'gemini-2.5-flash-preview-05-20'; // Fallback
+            const newModelName = modelNameInput.value.trim() || 'gemini-1.5-flash-latest';
 
             localStorage.setItem(LOCAL_STORAGE_API_KEY, newApiKey);
             localStorage.setItem(LOCAL_STORAGE_MODEL_NAME, newModelName);
@@ -651,20 +672,22 @@ body {
             }
         }
 
-        // Event Listeners für Einstellungen
         if (settingsIcon) {
             settingsIcon.onclick = () => {
                 if (settingsModal) settingsModal.style.display = "block";
-                 // Lade aktuelle Werte beim Öffnen, falls sie extern geändert wurden (unwahrscheinlich hier)
                 const storedApiKey = localStorage.getItem(LOCAL_STORAGE_API_KEY);
-                const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-2.5-flash-preview-05-20';
+                const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-1.5-flash-latest';
                 if (apiKeyInput) apiKeyInput.value = storedApiKey || '';
                 if (modelNameInput) modelNameInput.value = storedModelName;
-                if (apiKeyStatusEl) { // Status aktualisieren
-                     if (storedApiKey) {
-                        apiKeyStatusEl.textContent = `API Key aktiv (Modell: ${storedModelName}).`;
+                if (apiKeyStatusEl) {
+                     if (storedApiKey && currentApiKey === storedApiKey && model) {
+                        apiKeyStatusEl.textContent = `API Key aktiv (Modell: ${currentModelName}).`;
                         apiKeyStatusEl.className = 'api-key-status valid';
-                    } else {
+                    } else if (storedApiKey) {
+                        apiKeyStatusEl.textContent = "API Key gespeichert, aber Initialisierung ggf. fehlgeschlagen. Speichern zum Neuversuch.";
+                        apiKeyStatusEl.className = 'api-key-status invalid';
+                    }
+                    else {
                         apiKeyStatusEl.textContent = "Kein API Key gespeichert.";
                         apiKeyStatusEl.className = 'api-key-status invalid';
                     }
@@ -679,7 +702,6 @@ body {
         if (saveSettingsBtn) {
             saveSettingsBtn.onclick = saveSettings;
         }
-        // Schließen, wenn außerhalb geklickt wird
         window.onclick = (event) => {
             if (event.target == settingsModal) {
                 settingsModal.style.display = "none";
@@ -703,7 +725,6 @@ body {
             6: "Ungenügend"
         };
 
-        
 const assessmentTraits = {
     [CATEGORY_KEYS.ARBEITSHALTUNG]: {
         name: "Arbeitshaltung",
@@ -721,7 +742,7 @@ const assessmentTraits = {
                 }, levelLabels: SHARED_LEVEL_LABELS
             },
             {
-                id: 'fleiss_durchfuehrung', label: 'Anstrengungsbereitschaft & Ausdauer', default: 3, // Zusammengefasst für bessere Unterscheidung zu Konzentration
+                id: 'fleiss_durchfuehrung', label: 'Anstrengungsbereitschaft & Ausdauer', default: 3,
                 levels: {
                     6: "verweigert häufig die Bearbeitung von Aufgaben oder bricht bei ersten Schwierigkeiten sofort ab und lässt sich kaum zur Weiterarbeit bewegen",
                     5: "zeigt bei der Bearbeitung von Aufgaben nur geringe Ausdauer und gibt bei Schwierigkeiten schnell auf, benötigt viel Zuspruch zur Weiterarbeit",
@@ -743,7 +764,7 @@ const assessmentTraits = {
                 }, levelLabels: SHARED_LEVEL_LABELS
             },
             {
-                id: 'sorgfalt_ausfuehrung', label: 'Genauigkeit & Qualität der Ausführung', default: 3, // Präziser formuliert
+                id: 'sorgfalt_ausfuehrung', label: 'Genauigkeit & Qualität der Ausführung', default: 3,
                 levels: {
                     6: "arbeitet durchweg sehr flüchtig, ungenau und mit vielen Fehlern, die auch grundlegende Aspekte betreffen",
                     5: "arbeitet häufig mit mangelnder Genauigkeit, was zu vielen Flüchtigkeitsfehlern und unvollständigen Ergebnissen führt",
@@ -778,11 +799,11 @@ const assessmentTraits = {
         ]
     },
     [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: {
-        name: "Selbstständigkeit & Lernorganisation", 
+        name: "Selbstständigkeit & Lernorganisation",
         description: "Organisation, Eigeninitiative und Problemlösefähigkeit",
         traits: [
             {
-                id: 'eigeninitiative_ideen_unterricht', label: 'Aktives Einbringen eigener Ideen in den Unterricht', default: 3, // NEUES LABEL
+                id: 'eigeninitiative_ideen_unterricht', label: 'Aktives Einbringen eigener Ideen in den Unterricht', default: 3,
                 levels: {
                     6: "bringt sich von sich aus nie mit eigenen Ideen oder Beiträgen in den Unterricht ein und zeigt auch bei direkter Ansprache kaum Bereitschaft dazu",
                     5: "beteiligt sich nur sehr selten und zögerlich mit eigenen Ideen oder Vorschlägen am Unterrichtsgeschehen, auch wenn {er_sie} dazu ermutigt wird",
@@ -793,7 +814,7 @@ const assessmentTraits = {
                 }, levelLabels: SHARED_LEVEL_LABELS
             },
             {
-                id: 'eigeninitiative_umsetzung', label: 'Selbstständige Umsetzung & Planung', default: 3, defaultChecked: false, // Erweiterung
+                id: 'eigeninitiative_umsetzung', label: 'Selbstständige Umsetzung & Planung', default: 3, defaultChecked: false,
                 levels: {
                     6: "benötigt bei jedem Arbeitsschritt detaillierte Anleitung und engmaschige Kontrolle und kann kaum selbstständig planen",
                     5: "wartet meist auf detaillierte Anweisungen und fordert bei der Umsetzung von Aufgaben sehr häufig Unterstützung ein",
@@ -804,7 +825,7 @@ const assessmentTraits = {
                 }, levelLabels: SHARED_LEVEL_LABELS
             },
             {
-                id: 'verantwortung_material_termine', label: 'Zuverlässigkeit & Organisation', default: 3, // Umbenannt für breitere Abdeckung
+                id: 'verantwortung_material_termine', label: 'Zuverlässigkeit & Organisation', default: 3,
                 levels: {
                     6: "vergisst Materialien und Termine durchgängig und zeigt kaum Bemühen um Besserung, auch nach wiederholter Erinnerung",
                     5: "zeigt erhebliche Nachlässigkeit im Umgang mit Material und Terminen und muss sehr oft erinnert werden",
@@ -821,7 +842,7 @@ const assessmentTraits = {
         description: "Teamfähigkeit, Kommunikation und Regelverhalten",
         traits: [
             {
-                id: 'kooperation_teamarbeit', label: 'Kooperations- & Teamfähigkeit', default: 3, // Präziser
+                id: 'kooperation_teamarbeit', label: 'Kooperations- & Teamfähigkeit', default: 3,
                 levels: {
                     6: "verweigert häufig die Zusammenarbeit, stört Gruppenprozesse erheblich oder zieht sich komplett zurück",
                     5: "hält sich in Teamarbeit oft zurück, beteiligt sich nur passiv oder hat Schwierigkeiten, sich in eine Gruppe einzufügen",
@@ -832,7 +853,7 @@ const assessmentTraits = {
                 }, levelLabels: SHARED_LEVEL_LABELS
             },
             {
-                id: 'kooperation_regeln', label: 'Regelbewusstsein & Verantwortungsübernahme', default: 3, // Erweiterung
+                id: 'kooperation_regeln', label: 'Regelbewusstsein & Verantwortungsübernahme', default: 3,
                 levels: {
                     6: "missachtet Regeln und Absprachen häufig und bewusst und zeigt wenig Einsicht bei Ermahnungen",
                     5: "beachtet Absprachen und Regeln oft nicht und benötigt wiederholte und deutliche Ermahnungen",
@@ -843,7 +864,7 @@ const assessmentTraits = {
                 }, levelLabels: SHARED_LEVEL_LABELS
             },
             {
-                id: 'hilfsbereitschaft_angebot', label: 'Hilfsbereitschaft & Rücksichtnahme', default: 3, // Erweiterung
+                id: 'hilfsbereitschaft_angebot', label: 'Hilfsbereitschaft & Rücksichtnahme', default: 3,
                 levels: {
                     6: "zeigt keinerlei Hilfsbereitschaft, verhält sich oft egoistisch und nimmt wenig Rücksicht auf andere",
                     5: "zeigt selten von sich aus Hilfsbereitschaft und muss oft dazu aufgefordert werden, andere zu unterstützen oder Rücksicht zu nehmen",
@@ -854,7 +875,7 @@ const assessmentTraits = {
                 }, levelLabels: SHARED_LEVEL_LABELS
             },
             {
-                id: 'einfuehlungsvermoegen_verhalten', label: 'Einfühlungsvermögen & Konfliktlösungsfähigkeit', default: 3, // Erweiterung
+                id: 'einfuehlungsvermoegen_verhalten', label: 'Einfühlungsvermögen & Konfliktfähigkeit', default: 3,
                 levels: {
                     6: "zeigt kaum Einfühlungsvermögen, reagiert oft unangemessen auf andere und trägt wenig zur Lösung von Konflikten bei",
                     5: "zeigt wenig Einfühlungsvermögen in die Belange anderer und hat Schwierigkeiten, Konflikte angemessen zu lösen",
@@ -876,7 +897,7 @@ const assessmentTraits = {
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
-            loadSettings(); // Lade API Key beim Start
+            loadSettings();
         });
 
         function initializeApp() {
@@ -914,13 +935,14 @@ const assessmentTraits = {
 
                 const categoryCard = document.createElement('div');
                 categoryCard.className = 'category card';
-                categoryCard.id = catKey.toLowerCase().replace(/\s+/g, '-');
+                categoryCard.id = catKey.toLowerCase().replace(/\s+/g, '-').replace('&', 'und');
+
 
                 categoryCard.innerHTML = `
                     <div class="card__header category-header">
                         <h2>${categoryData.name}</h2>
                         <div class="category-status">
-                            <span id="${catKey}-count">0</span>/${categoryData.traits.length} ausgewählt
+                            <span id="${catKey.toLowerCase().replace(/\s+/g, '-').replace('&', 'und')}-count">0</span>/${categoryData.traits.length} ausgewählt
                         </div>
                     </div>
                     <div class="card__body">
@@ -1077,7 +1099,7 @@ const assessmentTraits = {
 
         function updateCategoryCounter(catKey) {
             const count = Object.keys(selectedTraitsData[catKey] || {}).length;
-            const counterEl = document.getElementById(`${catKey}-count`);
+            const counterEl = document.getElementById(`${catKey.toLowerCase().replace(/\s+/g, '-').replace('&', 'und')}-count`);
             if (counterEl) {
                 counterEl.textContent = count;
             }
@@ -1149,6 +1171,7 @@ const assessmentTraits = {
             for (const placeholder in pronouns) {
                 personalized = personalized.replace(new RegExp(placeholder.replace(/([\{\}])/g, "\\$1"), 'g'), pronouns[placeholder]);
             }
+            personalized = personalized.replace(/{[a-zA-Z_]+}/g, "");
             return personalized;
         }
 
@@ -1170,11 +1193,14 @@ const assessmentTraits = {
                         if (selectedTraitsData[catKey] && selectedTraitsData[catKey].hasOwnProperty(trait.id)) {
                             const noteValue = selectedTraitsData[catKey][trait.id];
                             const levelLabel = SHARED_LEVEL_LABELS[noteValue] || `Note ${noteValue}`;
+                            const rawLevelText = assessmentTraits[catKey].traits.find(t => t.id === trait.id).levels[noteValue];
+
                             data.selectedTraits.push({
                                 category: categoryData.name,
                                 traitLabel: trait.label,
                                 note: noteValue,
                                 noteText: levelLabel,
+                                rawText: rawLevelText
                             });
                         }
                     }
@@ -1184,11 +1210,11 @@ const assessmentTraits = {
         }
 
 
-        async function handleGenerateButtonClick() {
-            if (!model) { // Prüft, ob das Gemini Modell initialisiert wurde
-                alert("Gemini AI ist nicht korrekt initialisiert. Bitte geben Sie einen gültigen API Key in den Einstellungen ein.");
-                resultTextEl.value = "Fehler: Gemini AI nicht initialisiert. API-Key in Einstellungen prüfen.";
-                if (settingsModal) settingsModal.style.display = "block"; // Modal direkt öffnen
+        async function handleGenerateButtonClick() { // NEUER PROMPT HIER INTEGRIERT
+            if (!model) {
+                alert("Gemini AI ist nicht korrekt initialisiert. Bitte geben Sie einen gültigen API Key in den Einstellungen ein und speichern Sie.");
+                resultTextEl.value = "Fehler: Gemini AI nicht initialisiert. API-Key in Einstellungen prüfen und speichern.";
+                if (settingsModal) settingsModal.style.display = "block";
                 return;
             }
 
@@ -1216,25 +1242,40 @@ const assessmentTraits = {
             generateBtnEl.disabled = true;
             copyBtnEl.disabled = true;
 
+            const pronouns = getPronouns(assessmentData.gender);
+
             try {
-                let prompt = `Erstelle eine kurze und prägnante Verbalbeurteilung für ${assessmentData.gender === 'male' ? 'einen Schüler' : 'eine Schülerin'} der 5./6. Klasse in Baden-Württemberg.\n`;
-                prompt += `Der Text soll die Kernaspekte klar und verständlich wiedergeben, ohne an Kohärenz zu verlieren, und dabei relativ kurz bleiben.\n\n`;
-                prompt += `Name: ${assessmentData.studentName}\n`;
+                // ------ VERBESSERTER PROMPT START ------
+                let prompt = `Erstelle eine Verbalbeurteilung für ${assessmentData.studentName} (${assessmentData.gender === 'male' ? 'einen Schüler' : 'eine Schülerin'}) der 5./6. Klasse in Baden-Württemberg.\n`;
+                prompt += `Die Beurteilung soll ein zusammenhängender, sprachlich "runder" und gut lesbarer Text sein, der die ausgewählten Aspekte klar, differenziert und pädagogisch wertvoll darstellt. Die Länge sollte etwa 8-12 Zeilen nicht überschreiten.\n\n`;
+
+                prompt += `Grundlage für die Formulierungen sind die folgenden spezifischen Beobachtungen und Bewertungen (Textbausteine). Deine Hauptaufgabe ist es, die Kernaussagen dieser Textbausteine geschickt und flüssig in den Gesamttext zu integrieren. Wandle sie bei Bedarf sprachlich um (z.B. Nomen zu Verben, Umstellung von Satzteilen) und verbinde sie sinnvoll zu ganzen Sätzen. Vermeide unbedingt nichtssagende Füllsätze oder die reine Auflistung von Kategorienamen. Der Fokus liegt auf konkreten Verhaltensbeschreibungen, die aus den Bausteinen hervorgehen.\n\n`;
+
+                prompt += `Schüler/in: ${assessmentData.studentName}\n`;
                 prompt += `Geschlecht: ${assessmentData.gender === 'male' ? 'männlich' : 'weiblich'}\n\n`;
-                prompt += `Folgende Aspekte wurden bewertet (Skala 1=Sehr gut bis 6=Ungenügend):\n`;
+                prompt += "Textbausteine (diese sind bereits mit Namen und Pronomen personalisiert – nutze ihre Kernaussagen als direkte Grundlage für deine Sätze und formuliere sie aus):\n";
 
                 assessmentData.selectedTraits.forEach(trait => {
-                    prompt += `- Aspekt "${trait.traitLabel}": ${trait.noteText} (Note ${trait.note})\n`;
+                    const personalizedTraitText = personalizeText(trait.rawText, assessmentData.studentName, pronouns);
+                    prompt += `- Aspekt "${trait.traitLabel}" (entspricht Note ${trait.note}): "${personalizedTraitText}"\n`;
                 });
 
-                prompt += `\nFormuliere die Beurteilung als zusammenhängenden Text in ganzen Sätzen. Dabei sollten deine Formulierungen nahe an denen des Nutzers liegen. Die Namen der Kategorien musst du jedoch nicht wortgleich übernehmen, du kannst z.B. auch Nomen in Verben umschreiben und Aspekte bündeln, sofern es sinnvoll ist.`;
-                prompt += `Verwende Pronomen passend zum Geschlecht. `;
-                prompt += `Der Text soll für ein Zeugnis geeignet sein und eine ehrliche, aber pädagogisch wertvolle Tonalität haben. `;
-                prompt += `Beginne direkt mit der Beurteilung ohne einleitende Floskeln wie "Hier ist die Beurteilung:".`;
+                prompt += `\nAnweisungen für die Formulierung der Beurteilung:\n`;
+                prompt += `1. Beginne die Beurteilung direkt mit dem Namen des Schülers/der Schülerin (z.B. "${assessmentData.studentName} zeigt..."). Verwende keine einleitenden Floskeln wie "Hier ist die Beurteilung:".\n`;
+                prompt += `2. Formuliere aus den oben genannten personalisierten Textbausteinen einen kohärenten, fließenden Text. Die Sätze sollen die Kernaussage des jeweiligen Bausteins präzise wiedergeben, aber natürlich und nicht wie eine bloße Aufzählung klingen.\n`;
+                prompt += `3. Anstatt nur abstrakte Kategorien oder Fähigkeitsbezeichnungen zu nennen (z.B. "Im Bereich Arbeitshaltung..." oder "Die Zuverlässigkeit ist..."), beschreibe das konkrete Verhalten oder die Eigenschaft, die dem jeweiligen Textbaustein zugrunde liegt. Die Aussage des Bausteins soll im Satz erkennbar sein.\n`;
+                prompt += `4. **Wichtig - Beispiel für eine unerwünschte, nichtssagende Formulierung:** "Seine Zuverlässigkeit & Organisation sind zufriedenstellend."\n`;
+                prompt += `   **Erwünschte Formulierung (basierend auf einem Baustein wie "achtet meist auf die Vollständigkeit seiner Materialien und die Einhaltung von Terminen"):** "${assessmentData.studentName} achtet beispielsweise meist auf die Vollständigkeit seiner Materialien und die Einhaltung von Terminen." oder "Im Bereich der Organisation zeigt ${assessmentData.studentName}, dass er/sie meist auf vollständige Materialien und Termine achtet."\n`;
+                prompt += `5. Variiere den Satzbau. Nicht jeder Satz muss mit "${assessmentData.studentName}" oder einem Pronomen beginnen. Nutze auch Nebensätze oder verbindende Elemente.\n`;
+                prompt += `6. Bündle thematisch ähnliche Aspekte oder Beobachtungen sinnvoll, um Wiederholungen zu vermeiden und einen guten Lesefluss zu erzeugen. Fasse zum Beispiel mehrere positive Beobachtungen zur Arbeitshaltung zusammen, bevor du auf einen anderen Bereich eingehst.\n`;
+                prompt += `7. Die Tonalität soll stets ehrlich, aber immer pädagogisch wertvoll, anerkennend und konstruktiv sein, passend für ein Zeugnis. Bei weniger positiven Aspekten formuliere entwicklungsfördernd.\n`;
+                prompt += `8. Verwende durchgängig die korrekten Pronomen für das Geschlecht und achte auf grammatische Korrektheit.\n`;
+                prompt += `9. Der fertige Text sollte prägnant sein und die angegebene Länge von ca. 90 Wörtern nicht wesentlich überschreiten.\n`;
+                // ------ VERBESSERTER PROMPT ENDE ------
 
-                console.log("Gemini Prompt:", prompt);
+                console.log("Verbesserter Gemini Prompt:", prompt);
 
-                const result = await model.generateContent(prompt); // Nutzt das global initialisierte `model`
+                const result = await model.generateContent(prompt);
                 const response = await result.response;
                 const text = response.text();
 
@@ -1245,15 +1286,19 @@ const assessmentTraits = {
                 let errorMessage = `Fehler bei der Kommunikation mit der Gemini API.`;
                  if (error && error.message) {
                     errorMessage += ` Details: ${error.message}`;
-                    if (error.message.includes("API key not valid") || (error.toString && error.toString().includes("API key not valid")) || error.message.includes("permission denied")) {
-                        errorMessage = "Der Gemini API-Schlüssel ist ungültig, nicht korrekt konfiguriert oder hat keine Berechtigung. Bitte überprüfen Sie ihn in den Einstellungen.";
+                    if (error.message.includes("API key not valid") || (error.toString && error.toString().includes("API key not valid")) || error.message.includes("permission denied") || error.message.includes("API_KEY_INVALID")) {
+                        errorMessage = "Der Gemini API-Schlüssel ist ungültig, nicht korrekt konfiguriert oder hat keine Berechtigung. Bitte überprüfen Sie ihn in den Einstellungen und speichern Sie erneut.";
                         if (settingsModal) settingsModal.style.display = "block";
                     } else if (error.message.includes("quota") || (error.toString && error.toString().includes("quota"))) {
                         errorMessage = "Das API-Kontingent wurde überschritten. Bitte versuchen Sie es später erneut oder überprüfen Sie Ihr Google Cloud Projekt.";
                     } else if (error.message.includes("Invalid JSON payload") || (error.toString && error.toString().includes("Invalid JSON payload"))) {
                          errorMessage = "Fehler im Anfrageformat an Gemini. Bitte kontaktieren Sie den Entwickler.";
                     } else if (error.message.includes("fetch") && error.message.toLowerCase().includes("failed to fetch")) {
-                        errorMessage = "Netzwerkfehler oder CORS-Problem. Stellen Sie sicher, dass eine Internetverbindung besteht und der API-Endpunkt erreichbar ist. (Lokale Datei: Dies sollte nicht passieren, prüfen Sie die Konsole auf detailliertere Fehler)";
+                        errorMessage = "Netzwerkfehler oder CORS-Problem. Stellen Sie sicher, dass eine Internetverbindung besteht und der API-Endpunkt erreichbar ist.";
+                    } else if (error.status && error.status === 429) { 
+                        errorMessage = "Zu viele Anfragen in kurzer Zeit. Bitte warten Sie einen Moment und versuchen Sie es erneut.";
+                    } else if (error.message && error.message.includes("model is overloaded")) {
+                        errorMessage = "Das Gemini-Modell ist derzeit überlastet. Bitte versuchen Sie es später erneut.";
                     }
                 } else if (error && error.toString) {
                      errorMessage += ` Details: ${error.toString()}`;
@@ -1282,6 +1327,8 @@ const assessmentTraits = {
             } else if (textToCopy) {
                 const textarea = document.createElement('textarea');
                 textarea.value = textToCopy;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
                 document.body.appendChild(textarea);
                 textarea.select();
                 try {
@@ -1306,6 +1353,8 @@ const assessmentTraits = {
 
             renderCategoriesAndTraits();
             updateAllCategoryCounters();
+            updateAllPreviews();
+
             resultTextEl.value = '';
             resultSectionEl.classList.add('hidden');
             validationSummaryEl.classList.add('hidden');
