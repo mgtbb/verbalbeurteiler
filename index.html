@@ -1210,7 +1210,7 @@ const assessmentTraits = {
         }
 
 
-        async function handleGenerateButtonClick() { // NEUER PROMPT HIER INTEGRIERT
+        async function handleGenerateButtonClick() { 
             if (!model) {
                 alert("Gemini AI ist nicht korrekt initialisiert. Bitte geben Sie einen gültigen API Key in den Einstellungen ein und speichern Sie.");
                 resultTextEl.value = "Fehler: Gemini AI nicht initialisiert. API-Key in Einstellungen prüfen und speichern.";
@@ -1270,8 +1270,8 @@ const assessmentTraits = {
                 prompt += `6. Bündle thematisch ähnliche Aspekte oder Beobachtungen sinnvoll, um Wiederholungen zu vermeiden und einen guten Lesefluss zu erzeugen. Fasse zum Beispiel mehrere positive Beobachtungen zur Arbeitshaltung zusammen, bevor du auf einen anderen Bereich eingehst.\n`;
                 prompt += `7. Die Tonalität soll stets ehrlich, aber immer pädagogisch wertvoll, anerkennend und konstruktiv sein, passend für ein Zeugnis. Bei weniger positiven Aspekten formuliere entwicklungsfördernd.\n`;
                 prompt += `8. Verwende durchgängig die korrekten Pronomen für das Geschlecht und achte auf grammatische Korrektheit.\n`;
-                prompt += `9. Der fertige Text sollte prägnant sein und die angegebene Länge von ca. 90 Wörtern nicht wesentlich überschreiten.\n`;
-                // ------ VERBESSERTER PROMPT ENDE ------
+                prompt += `9. Der fertige Text sollte prägnant sein und die angegebene Länge von ca. 90 Wörtern in der Regel nicht überschreiten.\n`;
+            
 
                 console.log("Verbesserter Gemini Prompt:", prompt);
 
