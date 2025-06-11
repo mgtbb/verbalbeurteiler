@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verbalbeurteilungs-Assistent V1.2</title>
+    <title>Verbalbeurteilungs-Assistent (Gemini)</title>
     <style>
 :root {
-    --primary-color: #60a38f;  
+    --primary-color: #60a38f;
     --primary-dark: #3d6358;
-    --primary-light: #e4f2ee; 
+    --primary-light: #e4f2ee;
     --secondary-color: #6c757d;
     /* Stufenfarben für den Slider (Noten 1-6) */
     --level-1-color: #007bff; /* Sehr Gut (Blau) */
@@ -18,14 +18,14 @@
     --level-5-color: #fd7e14; /* Mangelhaft (Orange) */
     --level-6-color: #dc3545; /* Ungenügend (Rot) */
 
-    --text-color: #212529;      
-    --light-text: #6c757d;     
-    --border-color: #dee2e6;     
-    --bg-color: #f8f9fa;         
-    --card-bg: #ffffff;         
+    --text-color: #212529;
+    --light-text: #6c757d;
+    --border-color: #dee2e6;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --border-radius: 0.3rem;
-    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); 
+    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
 * {
@@ -36,14 +36,109 @@
 
 body {
     font-family: var(--font-family);
-    line-height: 1.6; 
+    line-height: 1.6;
     color: var(--text-color);
     background-color: var(--bg-color);
     padding: 20px;
+    position: relative; /* Für das Einstellungs-Icon */
 }
 
+/* Einstellungen Icon und Modal */
+.settings-icon {
+    position: fixed; /* Oder absolute, je nach Layout-Wunsch */
+    top: 20px;
+    right: 20px;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--primary-color);
+    z-index: 1001; /* Über anderen Elementen */
+    background-color: var(--card-bg);
+    padding: 8px;
+    border-radius: 50%;
+    box-shadow: var(--box-shadow);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.settings-icon:hover {
+    color: var(--primary-dark);
+}
+
+.modal {
+    display: none; /* Standardmäßig versteckt */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); /* Dunkler Hintergrund */
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    margin: 15% auto;
+    padding: 25px;
+    border: 1px solid var(--border-color);
+    width: 80%;
+    max-width: 500px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.modal-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.close-button {
+    color: var(--light-text);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.modal-body .form-group {
+    margin-bottom: 1.5rem;
+}
+.modal-body .form-label {
+    font-weight: bold;
+}
+.modal-footer {
+    text-align: right;
+    margin-top: 20px;
+}
+.api-key-status {
+    font-size: 0.9em;
+    margin-top: 5px;
+    color: var(--light-text);
+}
+.api-key-status.valid { color: var(--level-2-color); }
+.api-key-status.invalid { color: var(--level-6-color); }
+
+
+/* Restliches CSS bleibt gleich */
 .container {
-    max-width: 1140px; 
+    max-width: 1140px;
     margin: 0 auto;
 }
 
@@ -51,19 +146,19 @@ body {
     text-align: center;
     margin-bottom: 35px;
     padding: 20px 0;
-    border-bottom: 1px solid var(--border-color); 
+    border-bottom: 1px solid var(--border-color);
 }
 
 .header h1 {
     color: var(--primary-color);
     margin-bottom: 5px;
-    font-size: 2.25rem; 
+    font-size: 2.25rem;
     font-weight: 500;
 }
 
 .header__subtitle {
     color: var(--light-text);
-    font-size: 1.1rem; 
+    font-size: 1.1rem;
 }
 
 .card {
@@ -72,7 +167,7 @@ body {
     box-shadow: var(--box-shadow);
     padding: 25px;
     margin-bottom: 30px;
-    border: 1px solid var(--border-color); 
+    border: 1px solid var(--border-color);
 }
 
 .card__header {
@@ -102,7 +197,7 @@ body {
 .form-control {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border-color); 
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 1rem;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -111,7 +206,7 @@ body {
 .form-control:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(96, 163, 143, 0.25); /* Adjusted shadow color to match new primary */
+    box-shadow: 0 0 0 0.2rem rgba(96, 163, 143, 0.25);
 }
 
 .gender-options {
@@ -127,7 +222,6 @@ body {
     cursor: pointer;
 }
 
-/* NEU: Styling für die Radio Buttons */
 .radio-option input[type="radio"] {
     width: 1.1rem;
     height: 1.1rem;
@@ -151,14 +245,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.75rem; 
+    margin-bottom: 0.75rem;
 }
 
 .category-status {
     background-color: var(--primary-light);
-    padding: 0.3rem 0.75rem; 
-    border-radius: 50rem; 
-    font-size: 0.8rem; 
+    padding: 0.3rem 0.75rem;
+    border-radius: 50rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: var(--primary-dark);
 }
@@ -173,11 +267,11 @@ body {
 .traits-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem; 
+    gap: 1rem;
 }
 
 .trait-item {
-    background-color: var(--card-bg); 
+    background-color: var(--card-bg);
     border-radius: var(--border-radius);
     padding: 1.25rem;
     transition: box-shadow 0.2s ease-in-out;
@@ -219,7 +313,7 @@ body {
 
 .trait-controls {
     margin-top: 1rem;
-    padding-left: 1.7rem; 
+    padding-left: 1.7rem;
 }
 .trait-controls.hidden { display: none; }
 
@@ -229,17 +323,17 @@ body {
 
 .slider {
     width: 100%;
-    height: 0.5rem; 
+    height: 0.5rem;
     border-radius: 0.25rem;
     outline: none;
     -webkit-appearance: none;
-    background: linear-gradient(to right, 
-        var(--level-6-color) 0%, var(--level-6-color) 16.0%,    /* Note 6 */
-        var(--level-5-color) 16.7%, var(--level-5-color) 32.7%,  /* Note 5 */
-        var(--level-4-color) 33.4%, var(--level-4-color) 49.4%,  /* Note 4 */
-        var(--level-3-color) 50.1%, var(--level-3-color) 66.1%,  /* Note 3 */
-        var(--level-2-color) 66.8%, var(--level-2-color) 82.8%,  /* Note 2 */
-        var(--level-1-color) 83.5%, var(--level-1-color) 100%    /* Note 1 */
+    background: linear-gradient(to right,
+        var(--level-6-color) 0%, var(--level-6-color) 16.0%,
+        var(--level-5-color) 16.7%, var(--level-5-color) 32.7%,
+        var(--level-4-color) 33.4%, var(--level-4-color) 49.4%,
+        var(--level-3-color) 50.1%, var(--level-3-color) 66.1%,
+        var(--level-2-color) 66.8%, var(--level-2-color) 82.8%,
+        var(--level-1-color) 83.5%, var(--level-1-color) 100%
     );
     cursor: pointer;
 }
@@ -253,7 +347,7 @@ body {
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    margin-top: -0.375rem; 
+    margin-top: -0.375rem;
 }
 
 .slider::-moz-range-thumb {
@@ -270,17 +364,17 @@ body {
     display: flex;
     justify-content: space-between;
     margin-top: 0.375rem;
-    font-size: 0.8rem; 
+    font-size: 0.8rem;
     color: var(--light-text);
 }
 
 .trait-preview {
     background-color: var(--primary-light);
-    padding: 0.75rem; 
+    padding: 0.75rem;
     border-radius: var(--border-radius);
     font-style: italic;
-    color: var(--primary-dark); 
-    font-size: 0.9rem; 
+    color: var(--primary-dark);
+    font-size: 0.9rem;
     min-height: 2.5rem;
     display: flex;
     align-items: center;
@@ -302,19 +396,29 @@ body {
 }
 
 .btn:hover {
-    background-color: var(--primary-dark); 
+    background-color: var(--primary-dark);
     transform: translateY(-1px);
 }
+.btn:disabled {
+    background-color: var(--secondary-color);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
 
 .btn--secondary {
-    background-color: var(--secondary-color); 
+    background-color: var(--secondary-color);
     color: white;
 }
 .btn--secondary:hover {
-    background-color: #5a6268; 
+    background-color: #5a6268;
+}
+.btn--secondary:disabled {
+    background-color: #868e96;
 }
 
-.btn--primary.btn--sm { 
+
+.btn--primary.btn--sm {
     padding: 0.375rem 0.75rem;
     font-size: 0.875rem;
 }
@@ -343,17 +447,17 @@ body {
 .result-container.hidden { display: none; }
 
 .result-text-area {
-    width: 100%; /* Ensure it fills the container */
-    background-color: #e9ecef; 
+    width: 100%;
+    background-color: #e9ecef;
     padding: 1rem;
     border-radius: var(--border-radius);
-    line-height: 1.7; 
+    line-height: 1.7;
     font-size: 1rem;
-    font-family: inherit; /* Use body font */
-    min-height: 7.5rem; 
-    border: 1px solid var(--border-color); 
+    font-family: inherit;
+    min-height: 7.5rem;
+    border: 1px solid var(--border-color);
     margin-bottom: 0.75rem;
-    resize: vertical; /* Allow vertical resizing */
+    resize: vertical;
 }
 
 .footer {
@@ -367,6 +471,8 @@ body {
 
 @media (max-width: 768px) {
     body { padding: 10px; }
+    .settings-icon { top: 10px; right: 10px; font-size: 1.5rem; width: 35px; height: 35px; }
+    .modal-content { margin: 10% auto; width: 90%;}
     .header h1 { font-size: 1.8rem; }
     .card { padding: 15px; }
     .btn { display: block; width: 100%; margin-bottom: 0.5rem; margin-right: 0; }
@@ -375,13 +481,44 @@ body {
     </style>
 </head>
 <body>
+    <!-- Settings Icon -->
+    <div id="settings-icon" class="settings-icon" title="Einstellungen">
+        ⚙️
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Einstellungen</h2>
+                <span class="close-button" id="close-settings-modal">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="api-key-input" class="form-label">Gemini API Key</label>
+                    <input type="password" id="api-key-input" class="form-control" placeholder="Deinen API Key hier einfügen">
+                    <p class="api-key-status" id="api-key-status">Kein API Key gespeichert.</p>
+                    <small>Dein API Key wird nur lokal in deinem Browser gespeichert.</small>
+                </div>
+                <div class="form-group">
+                    <label for="model-name-input" class="form-label">Gemini Modellname</label>
+                    <input type="text" id="model-name-input" class="form-control" placeholder="gemini-2.5-flash-preview-05-20">
+                     <small>Standard: gemini-2.5-flash-preview-05-20. Andere Modelle: gemini-pro, etc.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-settings-btn" class="btn btn--primary">Speichern</button>
+            </div>
+        </div>
+    </div>
+
     <header class="header">
         <div class="container">
-            <h1>Verbalbeurteilungs-Assistent</h1>
-            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V1.2)</p>
+            <h1>Verbalbeurteilungs-Assistent (Gemini)</h1>
+            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V2.2)</p>
         </div>
     </header>
-    
+
     <main class="container main-content">
         <section class="student-info card">
             <div class="card__header">
@@ -393,7 +530,7 @@ body {
                     <input type="text" id="student-name" class="form-control" placeholder="Vor- und Nachname">
                     <div id="name-error" class="error-message-display hidden">Bitte geben Sie einen Namen ein.</div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">Geschlecht</label>
                     <div class="gender-options">
@@ -417,6 +554,7 @@ body {
 
         <section class="actions">
             <div class="validation-summary hidden" id="validation-summary"></div>
+            <button id="generate-btn" class="btn btn--primary">Beurteilung generieren (Gemini)</button>
             <button id="reset-btn" class="btn btn--secondary">Eingaben zurücksetzen</button>
         </section>
 
@@ -428,8 +566,7 @@ body {
                 </button>
             </div>
             <div class="card__body">
-                <!-- GEÄNDERT: div wurde zu einer editierbaren textarea -->
-                <textarea id="result-text-area" class="result-text-area"></textarea>
+                <textarea id="result-text-area" class="result-text-area" placeholder="Die generierte Beurteilung erscheint hier..."></textarea>
             </div>
         </section>
     </main>
@@ -440,15 +577,124 @@ body {
         </div>
     </footer>
 
-    <script>
+    <script type="module">
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+        // Globale Variablen für Gemini Instanzen
+        let genAI;
+        let model;
+        let currentApiKey = '';
+        let currentModelName = 'gemini-2.5-flash-preview-05-20'; // Standardmodell
+
+        const LOCAL_STORAGE_API_KEY = 'geminiApiKey';
+        const LOCAL_STORAGE_MODEL_NAME = 'geminiModelName';
+
+
+        // DOM Elemente für Einstellungen
+        const settingsIcon = document.getElementById('settings-icon');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsModalBtn = document.getElementById('close-settings-modal');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const modelNameInput = document.getElementById('model-name-input');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const apiKeyStatusEl = document.getElementById('api-key-status');
+
+
+        function initializeGemini(apiKey, modelName) {
+            if (!apiKey) {
+                console.warn("Kein API Key für Gemini vorhanden.");
+                if (apiKeyStatusEl) apiKeyStatusEl.textContent = "Kein API Key gespeichert. Bitte in den Einstellungen eingeben.";
+                if (apiKeyStatusEl) apiKeyStatusEl.className = 'api-key-status invalid';
+                model = null; // Sicherstellen, dass kein altes Modell verwendet wird
+                return false;
+            }
+            try {
+                genAI = new GoogleGenerativeAI(apiKey);
+                model = genAI.getGenerativeModel({ model: modelName });
+                currentApiKey = apiKey;
+                currentModelName = modelName;
+                console.log(`Gemini initialisiert mit Modell: ${modelName}`);
+                if (apiKeyStatusEl) apiKeyStatusEl.textContent = `API Key aktiv (Modell: ${modelName}).`;
+                if (apiKeyStatusEl) apiKeyStatusEl.className = 'api-key-status valid';
+                return true;
+            } catch (e) {
+                console.error("Fehler bei der Initialisierung von Gemini:", e);
+                if (apiKeyStatusEl) apiKeyStatusEl.textContent = "Fehler bei Initialisierung. Prüfen Sie API Key/Modell.";
+                if (apiKeyStatusEl) apiKeyStatusEl.className = 'api-key-status invalid';
+                model = null;
+                return false;
+            }
+        }
+
+        function loadSettings() {
+            const storedApiKey = localStorage.getItem(LOCAL_STORAGE_API_KEY);
+            const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-2.5-flash-preview-05-20'; // Fallback
+
+            if (apiKeyInput) apiKeyInput.value = storedApiKey || '';
+            if (modelNameInput) modelNameInput.value = storedModelName;
+
+            initializeGemini(storedApiKey, storedModelName);
+        }
+
+        function saveSettings() {
+            const newApiKey = apiKeyInput.value.trim();
+            const newModelName = modelNameInput.value.trim() || 'gemini-2.5-flash-preview-05-20'; // Fallback
+
+            localStorage.setItem(LOCAL_STORAGE_API_KEY, newApiKey);
+            localStorage.setItem(LOCAL_STORAGE_MODEL_NAME, newModelName);
+
+            if (initializeGemini(newApiKey, newModelName)) {
+                alert("Einstellungen gespeichert und Gemini initialisiert.");
+                settingsModal.style.display = "none";
+            } else {
+                alert("API Key oder Modellname fehlerhaft. Gemini konnte nicht initialisiert werden.");
+            }
+        }
+
+        // Event Listeners für Einstellungen
+        if (settingsIcon) {
+            settingsIcon.onclick = () => {
+                if (settingsModal) settingsModal.style.display = "block";
+                 // Lade aktuelle Werte beim Öffnen, falls sie extern geändert wurden (unwahrscheinlich hier)
+                const storedApiKey = localStorage.getItem(LOCAL_STORAGE_API_KEY);
+                const storedModelName = localStorage.getItem(LOCAL_STORAGE_MODEL_NAME) || 'gemini-2.5-flash-preview-05-20';
+                if (apiKeyInput) apiKeyInput.value = storedApiKey || '';
+                if (modelNameInput) modelNameInput.value = storedModelName;
+                if (apiKeyStatusEl) { // Status aktualisieren
+                     if (storedApiKey) {
+                        apiKeyStatusEl.textContent = `API Key aktiv (Modell: ${storedModelName}).`;
+                        apiKeyStatusEl.className = 'api-key-status valid';
+                    } else {
+                        apiKeyStatusEl.textContent = "Kein API Key gespeichert.";
+                        apiKeyStatusEl.className = 'api-key-status invalid';
+                    }
+                }
+            };
+        }
+        if (closeSettingsModalBtn) {
+            closeSettingsModalBtn.onclick = () => {
+                if (settingsModal) settingsModal.style.display = "none";
+            };
+        }
+        if (saveSettingsBtn) {
+            saveSettingsBtn.onclick = saveSettings;
+        }
+        // Schließen, wenn außerhalb geklickt wird
+        window.onclick = (event) => {
+            if (event.target == settingsModal) {
+                settingsModal.style.display = "none";
+            }
+        };
+
+
         const CATEGORY_KEYS = {
             ARBEITSHALTUNG: "Arbeitshaltung",
-            SELBSTSTAENDIGKEIT: "Selbstständigkeit",
+            SELBSTSTAENDIGKEIT: "Selbstständigkeit & Lernorganisation",
             SOZIALVERHALTEN: "Sozial- und Kooperationsverhalten"
         };
         const categoryOrder = [CATEGORY_KEYS.ARBEITSHALTUNG, CATEGORY_KEYS.SELBSTSTAENDIGKEIT, CATEGORY_KEYS.SOZIALVERHALTEN];
-        
-        const SHARED_LEVEL_LABELS = { 
+
+        const SHARED_LEVEL_LABELS = {
             1: "Sehr gut",
             2: "Gut",
             3: "Befriedigend",
@@ -457,156 +703,188 @@ body {
             6: "Ungenügend"
         };
 
-        const assessmentTraits = {
-            [CATEGORY_KEYS.ARBEITSHALTUNG]: {
-                name: "Arbeitshaltung",
-                description: "Motivation, Ausdauer und Konzentration",
-                traits: [
-                    { id: 'fleiss_ansatz', label: 'Motivation & Aufgabenbeginn', default: 3,
-                        levels: {
-                            6: "zeigt auch nach mehrfacher Aufforderung kaum Bereitschaft, mit Aufgaben zu beginnen",
-                            5: "beginnt mit Aufgaben oft erst nach wiederholter Aufforderung und wirkt dabei wenig motiviert",
-                            4: "benötigt häufiger einen Anstoß, um mit einer Aufgabe zu beginnen",
-                            3: "beginnt nach der Aufgabenstellung in der Regel zügig und angemessen motiviert mit der Arbeit",
-                            2: "greift neue Aufgaben bereitwillig auf und beginnt zügig mit deren Bearbeitung",
-                            1: "zeigt eine hohe Eigenmotivation und beginnt stets umgehend und zielgerichtet mit neuen Aufgaben"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'fleiss_durchfuehrung', label: 'Anstrengungsbereitschaft', default: 3,
-                        levels: {
-                            6: "verweigert häufig die Bearbeitung von Aufgaben oder bricht bei ersten Schwierigkeiten sofort ab",
-                            5: "zeigt bei der Bearbeitung von Aufgaben nur geringe Ausdauer und gibt bei Schwierigkeiten schnell auf",
-                            4: "arbeitet bei einfachen Aufgaben ausdauernd, bei größeren Herausforderungen lässt die Anstrengung jedoch nach",
-                            3: "zeigt eine im Allgemeinen gute Ausdauer und bearbeitet die gestellten Aufgaben bis zum Ende",
-                            2: "arbeitet konzentriert und ausdauernd an Aufgaben und lässt sich auch von Schwierigkeiten nicht entmutigen",
-                            1: "zeigt eine vorbildliche Anstrengungsbereitschaft und Ausdauer, auch bei komplexen und langwierigen Aufgaben"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'sorgfalt_material', label: 'Umgang mit Material', default: 3, defaultChecked: false,
-                        levels: { 
-                            6: "geht durchweg sehr unachtsam und oft zerstörerisch mit Arbeitsmaterialien um",
-                            5: "geht oft unachtsam mit Arbeitsmaterialien um und muss häufiger ermahnt werden", 
-                            4: "sollte noch sorgsamer mit {sein_ihr}en Arbeitsmaterialien umgehen",
-                            3: "geht in der Regel sorgfältig mit {sein_ihr}en Arbeitsmaterialien um",
-                            2: "geht gut und ordentlich mit {sein_ihr}en Arbeitsmaterialien um", 
-                            1: "geht stets vorbildlich sorgfältig und verantwortungsbewusst mit Arbeitsmaterialien um"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'sorgfalt_ausfuehrung', label: 'Genauigkeit der Ausführung', default: 3,
-                        levels: { 
-                            6: "arbeitet durchweg flüchtig und mit vielen Fehlern",
-                            5: "arbeitet häufig mit mangelnder Genauigkeit bei Aufgaben", 
-                            4: "arbeitet bei der Ausführung oft noch nicht durchgängig genau",
-                            3: "erledigt Aufgaben mit einer im Großen und Ganzen angemessenen Genauigkeit",
-                            2: "erledigt Aufgaben mit guter Genauigkeit", 
-                            1: "zeichnet sich durch eine sehr genaue und sorgfältige Arbeitsweise aus" 
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'ausdauer_konzentration', label: 'Konzentrationsfähigkeit', default: 3,
-                        levels: { 
-                            6: "kann sich auch bei kurzen Aufgaben kaum konzentrieren",
-                            5: "hat deutliche Schwierigkeiten, sich länger zu konzentrieren", 
-                            4: "kann die Konzentration oft nur für eine kurze Zeitspanne aufrechterhalten",
-                            3: "zeigt eine dem Alter angemessene Konzentrationsspanne",
-                            2: "kann sich auch bei längeren Aufgaben gut konzentrieren", 
-                            1: "kann auch über längere Phasen sehr konzentriert und fokussiert arbeiten" 
-                        }, levelLabels: SHARED_LEVEL_LABELS }, 
-                    { id: 'ausdauer_ablenkung', label: 'Umgang mit Ablenkungen', default: 3,
-                        levels: { 
-                            6: "lässt sich ständig ablenken und stört dabei auch andere",
-                            5: "lässt sich sehr leicht ablenken und findet schwer zur Aufgabe zurück",
-                            4: "lässt sich noch oft von äußeren Reizen ablenken, findet aber zumeist zur Aufgabe zurück",
-                            3: "lässt sich nur gelegentlich ablenken und kann sich dann wieder auf die Arbeit fokussieren",
-                            2: "lässt sich kaum von äußeren Reizen ablenken",
-                            1: "lässt sich auch bei Störungen kaum von der Tätigkeit abbringen und arbeitet unbeirrt weiter" 
-                        }, levelLabels: SHARED_LEVEL_LABELS }
-                ]
-            },
-            [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: {
-                name: "Selbstständigkeit",
-                description: "Organisation und Eigeninitiative",
-                traits: [
-                    { id: 'eigeninitiative_ideen', label: 'Ideenfindung', default: 3,
-                        levels: {
-                            6: "zeigt keinerlei Eigeninitiative und beteiligt sich nicht an der Ideenfindung",
-                            5: "zeigt selten Eigeninitiative bei der Ideenfindung",
-                            4: "bringt sich noch selten mit eigenen Ideen ein, greift aber Anregungen auf",
-                            3: "bringt gelegentlich eigene, passende Ideen in den Unterricht ein",
-                            2: "bringt oft gute eigene Ideen ein und sucht nach kreativen Lösungswegen", 
-                            1: "zeichnet sich durch hohe Eigeninitiative bei der Ideenfindung und kreative Ansätze aus"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'eigeninitiative_umsetzung', label: 'Selbstständige Umsetzung', default: 3, defaultChecked: false,
-                        levels: {
-                            6: "benötigt bei jedem Schritt detaillierte Anleitung und Kontrolle",
-                            5: "wartet meist auf detaillierte Anweisungen, bevor {er_sie} tätig wird", 
-                            4: "benötigt noch oft Anleitung, um Aufgaben eigenständig umzusetzen",
-                            3: "setzt Aufgaben nach einer Anleitung in der Regel selbstständig um",
-                            2: "setzt Ideen engagiert und selbstständig um", 
-                            1: "setzt Ideen eigenverantwortlich und zielgerichtet um" 
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'verantwortung_material_termine', label: 'Organisation', default: 3,
-                        levels: {
-                            6: "vergisst Materialien und Termine durchgängig und zeigt kein Bemühen um Besserung",
-                            5: "zeigt erhebliche Nachlässigkeit im Umgang mit Material und Terminen", 
-                            4: "muss noch zuverlässiger auf {sein_ihr}e Materialien und Termine achten",
-                            3: "achtet meist auf die Vollständigkeit {sein_ihr}er Materialien und die Einhaltung von Terminen", 
-                            2: "geht verantwortungsvoll mit Materialien um und hält Termine zuverlässig ein", 
-                            1: "zeigt große Zuverlässigkeit und Sorgfalt im Umgang mit Materialien und Terminen" 
-                        }, levelLabels: SHARED_LEVEL_LABELS }
-                ]
-            },
-            [CATEGORY_KEYS.SOZIALVERHALTEN]: {
-                name: "Sozial- und Kooperationsverhalten",
-                description: "Teamfähigkeit, Kommunikation und Regelverhalten",
-                traits: [
-                    { id: 'kooperation_teamarbeit', label: 'Einbringen in Teamarbeit', default: 3,
-                        levels: { 
-                            6: "verweigert häufig die Zusammenarbeit oder stört Gruppenprozesse erheblich",
-                            5: "hält sich in Teamarbeit oft zurück oder beteiligt sich nur passiv",
-                            4: "sollte sich noch aktiver und konstruktiver in Gruppenprozesse einbringen",
-                            3: "arbeitet in der Regel kooperativ und konstruktiv in Gruppen mit",
-                            2: "zeigt sich als kooperatives und geschätztes Mitglied in Arbeitsgruppen",
-                            1: "bringt sich stets konstruktiv, engagiert und rücksichtsvoll in Teams ein"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'kooperation_regeln', label: 'Einhaltung von Regeln', default: 3,
-                        levels: {
-                            6: "missachtet Regeln häufig und bewusst",
-                            5: "beachtet Absprachen und Regeln oft nicht und benötigt häufige Ermahnungen",
-                            4: "muss noch konsequenter auf gemeinsame Regeln und Absprachen achten",
-                            3: "hält sich im Allgemeinen an getroffene Absprachen und Regeln",
-                            2: "achtet auf die Einhaltung von Gruppenregeln und Absprachen",
-                            1: "achtet vorbildlich auf Regeln und unterstützt andere dabei"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'hilfsbereitschaft_angebot', label: 'Hilfe anbieten', default: 3,
-                        levels: {
-                            6: "zeigt keinerlei Hilfsbereitschaft und verhält sich oft egoistisch",
-                            5: "zeigt selten von sich aus Hilfsbereitschaft", 
-                            4: "könnte noch häufiger von sich aus Hilfe anbieten und auf andere zugehen",
-                            3: "ist hilfsbereit, wenn {er_sie} um Unterstützung gebeten wird",
-                            2: "bietet Mitschülern bereitwillig und oft unaufgefordert Hilfe an", 
-                            1: "zeichnet sich durch große Hilfsbereitschaft und ein ausgeprägtes Einfühlungsvermögen aus" 
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'einfuehlungsvermoegen_verhalten', label: 'Einfühlungsvermögen', default: 3,
-                        levels: {
-                            6: "zeigt keinerlei Einfühlungsvermögen und reagiert oft unangemessen auf andere",
-                            5: "zeigt kaum Einfühlungsvermögen in die Belange anderer",
-                            4: "sollte noch lernen, die Bedürfnisse und Gefühle anderer besser wahrzunehmen",
-                            3: "zeigt grundlegendes Einfühlungsvermögen in die Situation anderer",
-                            2: "zeigt gutes Einfühlungsvermögen für die Anliegen und Gefühle anderer",
-                            1: "geht stets sehr einfühlsam und verständnisvoll auf {sein_ihr}e Mitschüler ein" 
-                        }, levelLabels: SHARED_LEVEL_LABELS }
-                ]
-            }
-        };
         
-        let studentNameEl, genderRadioEls, resetBtnEl, copyBtnEl;
+const assessmentTraits = {
+    [CATEGORY_KEYS.ARBEITSHALTUNG]: {
+        name: "Arbeitshaltung",
+        description: "Motivation, Ausdauer und Konzentration",
+        traits: [
+            {
+                id: 'fleiss_ansatz', label: 'Motivation & Aufgabenbeginn', default: 3,
+                levels: {
+                    6: "zeigt auch nach wiederholter Aufforderung kaum Bereitschaft, mit Aufgaben zu beginnen und benötigt sehr viel Unterstützung, um überhaupt zu starten",
+                    5: "beginnt mit Aufgaben oft erst nach mehrfacher Aufforderung und wirkt dabei wenig motiviert, benötigt häufig Zuspruch",
+                    4: "benötigt öfter einen Anstoß oder Ermutigung, um mit einer Aufgabe zu beginnen, findet dann aber meist in die Arbeit",
+                    3: "beginnt nach der Aufgabenstellung in der Regel eigenständig und mit erkennbarer Motivation mit der Arbeit",
+                    2: "greift neue Aufgaben bereitwillig auf und beginnt zügig und motiviert mit deren Bearbeitung",
+                    1: "zeigt eine hohe Eigenmotivation und beginnt stets umgehend, zielgerichtet und mit sichtbarer Freude mit neuen Aufgaben"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'fleiss_durchfuehrung', label: 'Anstrengungsbereitschaft & Ausdauer', default: 3, // Zusammengefasst für bessere Unterscheidung zu Konzentration
+                levels: {
+                    6: "verweigert häufig die Bearbeitung von Aufgaben oder bricht bei ersten Schwierigkeiten sofort ab und lässt sich kaum zur Weiterarbeit bewegen",
+                    5: "zeigt bei der Bearbeitung von Aufgaben nur geringe Ausdauer und gibt bei Schwierigkeiten schnell auf, benötigt viel Zuspruch zur Weiterarbeit",
+                    4: "arbeitet bei einfachen Aufgaben ausdauernd, bei größeren Herausforderungen oder Schwierigkeiten lässt die Anstrengung jedoch spürbar nach",
+                    3: "zeigt eine im Allgemeinen gute Ausdauer und bearbeitet die gestellten Aufgaben zumeist bis zum Ende, auch wenn kleine Hürden auftreten",
+                    2: "arbeitet engagiert und ausdauernd an Aufgaben und lässt sich auch von Schwierigkeiten nicht schnell entmutigen",
+                    1: "zeigt eine vorbildliche Anstrengungsbereitschaft und Ausdauer, auch bei komplexen und langwierigen Aufgaben, und sucht aktiv nach Lösungen"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'sorgfalt_material', label: 'Umgang mit Arbeitsmaterialien', default: 3, defaultChecked: false,
+                levels: {
+                    6: "geht durchweg sehr unachtsam und oft achtlos mit Arbeitsmaterialien um, was zu häufigem Verlust oder Beschädigung führt",
+                    5: "geht oft unachtsam mit Arbeitsmaterialien um und muss wiederholt an einen sorgfältigen Umgang erinnert werden",
+                    4: "sollte noch konsequenter auf einen sorgsamen Umgang mit {sein_ihr}en Arbeitsmaterialien achten",
+                    3: "geht in der Regel angemessen sorgfältig mit {sein_ihr}en Arbeitsmaterialien um",
+                    2: "geht pfleglich und ordentlich mit {sein_ihr}en Arbeitsmaterialien um",
+                    1: "geht stets vorbildlich sorgfältig und verantwortungsbewusst mit Arbeitsmaterialien um und hält diese gut in Ordnung"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'sorgfalt_ausfuehrung', label: 'Genauigkeit & Qualität der Ausführung', default: 3, // Präziser formuliert
+                levels: {
+                    6: "arbeitet durchweg sehr flüchtig, ungenau und mit vielen Fehlern, die auch grundlegende Aspekte betreffen",
+                    5: "arbeitet häufig mit mangelnder Genauigkeit, was zu vielen Flüchtigkeitsfehlern und unvollständigen Ergebnissen führt",
+                    4: "arbeitet bei der Ausführung von Aufgaben oft noch nicht durchgängig genau und sollte Ergebnisse sorgfältiger überprüfen",
+                    3: "erledigt Aufgaben mit einer im Großen und Ganzen zufriedenstellenden Genauigkeit und achtet auf die wesentlichen Aspekte",
+                    2: "erledigt Aufgaben mit guter Genauigkeit und sichtbarem Bemühen um eine qualitativ gute Ausführung",
+                    1: "zeichnet sich durch eine sehr genaue, sorgfältige und qualitativ hochwertige Arbeitsweise aus"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'ausdauer_konzentration', label: 'Konzentrationsfähigkeit', default: 3,
+                levels: {
+                    6: "kann sich auch bei kurzen und einfachen Aufgaben kaum konzentrieren und schweift ständig ab",
+                    5: "hat deutliche und wiederkehrende Schwierigkeiten, sich über einen längeren Zeitraum zu konzentrieren",
+                    4: "kann die Konzentration oft nur für eine begrenzte Zeitspanne aufrechterhalten und benötigt dann Pausen oder neue Impulse",
+                    3: "zeigt eine dem Alter und den Anforderungen im Unterricht überwiegend angemessene Konzentrationsspanne",
+                    2: "kann sich auch bei längeren und anspruchsvolleren Aufgaben gut und ausdauernd konzentrieren",
+                    1: "kann auch über längere Phasen sehr konzentriert, fokussiert und ungestört arbeiten"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'ausdauer_ablenkung', label: 'Umgang mit Ablenkungen', default: 3,
+                levels: {
+                    6: "lässt sich ständig durch äußere Reize oder eigene Impulse ablenken und stört dabei häufig auch Mitschüler",
+                    5: "lässt sich sehr leicht ablenken, findet nur schwer wieder zur Aufgabe zurück und stört manchmal andere",
+                    4: "lässt sich noch relativ oft von äußeren Reizen ablenken, findet aber zumeist mit etwas Unterstützung zur Aufgabe zurück",
+                    3: "lässt sich gelegentlich ablenken, kann sich dann aber in der Regel selbstständig wieder auf die Arbeit fokussieren",
+                    2: "lässt sich selten von äußeren Reizen ablenken und kann sich gut auf die Aufgabe konzentrieren",
+                    1: "arbeitet sehr fokussiert und lässt sich auch bei Störungen kaum von der Tätigkeit abbringen"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            }
+        ]
+    },
+    [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: {
+        name: "Selbstständigkeit & Lernorganisation", 
+        description: "Organisation, Eigeninitiative und Problemlösefähigkeit",
+        traits: [
+            {
+                id: 'eigeninitiative_ideen', label: 'Kreativität & Ideenfindung', default: 3, // Umbenannt und erweitert
+                levels: {
+                    6: "zeigt keinerlei Eigeninitiative, beteiligt sich nicht an der Ideenfindung und nimmt Anregungen kaum auf",
+                    5: "zeigt selten Eigeninitiative bei der Ideenfindung und benötigt viele Anregungen von außen, um eigene Gedanken zu entwickeln",
+                    4: "bringt sich noch selten mit eigenen Ideen ein, greift aber Anregungen anderer auf und versucht, diese umzusetzen",
+                    3: "bringt gelegentlich eigene, passende Ideen in den Unterricht ein und zeigt Bereitschaft, neue Lösungswege zu bedenken",
+                    2: "bringt oft gute und durchdachte eigene Ideen ein und sucht nach kreativen und passenden Lösungswegen",
+                    1: "zeichnet sich durch hohe Eigeninitiative, originelle Ideen und kreative Ansätze bei der Lösung von Aufgaben aus"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'eigeninitiative_umsetzung', label: 'Selbstständige Umsetzung & Planung', default: 3, defaultChecked: false, // Erweiterung
+                levels: {
+                    6: "benötigt bei jedem Arbeitsschritt detaillierte Anleitung und engmaschige Kontrolle und kann kaum selbstständig planen",
+                    5: "wartet meist auf detaillierte Anweisungen und fordert bei der Umsetzung von Aufgaben sehr häufig Unterstützung ein",
+                    4: "benötigt noch oft Anleitung und Bestätigung, um Aufgaben eigenständig umzusetzen und Arbeitsschritte zu planen",
+                    3: "setzt Aufgaben nach einer Anleitung in der Regel selbstständig und zielorientiert um und kann einfache Arbeitsschritte planen",
+                    2: "setzt Ideen und Aufgaben engagiert, planvoll und weitgehend selbstständig um",
+                    1: "setzt Ideen und Aufgaben eigenverantwortlich, zielgerichtet und mit sehr guter Planung und Organisation um"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'verantwortung_material_termine', label: 'Zuverlässigkeit & Organisation', default: 3, // Umbenannt für breitere Abdeckung
+                levels: {
+                    6: "vergisst Materialien und Termine durchgängig und zeigt kaum Bemühen um Besserung, auch nach wiederholter Erinnerung",
+                    5: "zeigt erhebliche Nachlässigkeit im Umgang mit Material und Terminen und muss sehr oft erinnert werden",
+                    4: "muss noch zuverlässiger auf {sein_ihr}e Arbeitsmaterialien und die Einhaltung von Terminen achten",
+                    3: "achtet meist auf die Vollständigkeit {sein_ihr}er Arbeitsmaterialien und die Einhaltung von Terminen und benötigt nur gelegentlich eine Erinnerung",
+                    2: "geht verantwortungsvoll mit {sein_ihr}en Arbeitsmaterialien um und hält Termine zuverlässig ein",
+                    1: "zeigt große Zuverlässigkeit und eine vorbildliche Organisation im Umgang mit Arbeitsmaterialien und Terminen"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            }
+        ]
+    },
+    [CATEGORY_KEYS.SOZIALVERHALTEN]: {
+        name: "Sozial- und Kooperationsverhalten",
+        description: "Teamfähigkeit, Kommunikation und Regelverhalten",
+        traits: [
+            {
+                id: 'kooperation_teamarbeit', label: 'Kooperations- & Teamfähigkeit', default: 3, // Präziser
+                levels: {
+                    6: "verweigert häufig die Zusammenarbeit, stört Gruppenprozesse erheblich oder zieht sich komplett zurück",
+                    5: "hält sich in Teamarbeit oft zurück, beteiligt sich nur passiv oder hat Schwierigkeiten, sich in eine Gruppe einzufügen",
+                    4: "sollte sich noch aktiver und konstruktiver in Gruppenprozesse einbringen und Kompromisse leichter akzeptieren",
+                    3: "arbeitet in der Regel kooperativ und konstruktiv in Gruppen mit und bringt sich situationsangemessen ein",
+                    2: "zeigt sich als engagiertes, kooperatives und hilfsbereites Mitglied in Arbeitsgruppen und trägt aktiv zum Gelingen bei",
+                    1: "bringt sich stets konstruktiv, engagiert und rücksichtsvoll in Teams ein und übernimmt dabei oft eine positive Rolle"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'kooperation_regeln', label: 'Regelbewusstsein & Verantwortungsübernahme', default: 3, // Erweiterung
+                levels: {
+                    6: "missachtet Regeln und Absprachen häufig und bewusst und zeigt wenig Einsicht bei Ermahnungen",
+                    5: "beachtet Absprachen und Regeln oft nicht und benötigt wiederholte und deutliche Ermahnungen",
+                    4: "muss noch konsequenter auf gemeinsame Regeln und Absprachen achten und Verantwortung für eigenes Handeln übernehmen",
+                    3: "hält sich im Allgemeinen an getroffene Absprachen und Regeln und zeigt Bereitschaft, Verantwortung zu übernehmen",
+                    2: "achtet zuverlässig auf die Einhaltung von Gruppenregeln sowie Absprachen und übernimmt Verantwortung für {sein_ihr} Handeln",
+                    1: "achtet vorbildlich auf Regeln sowie Absprachen, unterstützt andere dabei und übernimmt bereitwillig Verantwortung"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'hilfsbereitschaft_angebot', label: 'Hilfsbereitschaft & Rücksichtnahme', default: 3, // Erweiterung
+                levels: {
+                    6: "zeigt keinerlei Hilfsbereitschaft, verhält sich oft egoistisch und nimmt wenig Rücksicht auf andere",
+                    5: "zeigt selten von sich aus Hilfsbereitschaft und muss oft dazu aufgefordert werden, andere zu unterstützen oder Rücksicht zu nehmen",
+                    4: "könnte noch häufiger von sich aus Hilfe anbieten und aufmerksamer auf die Bedürfnisse anderer achten",
+                    3: "ist hilfsbereit, wenn {er_sie} um Unterstützung gebeten wird und nimmt in der Regel Rücksicht auf Mitschüler",
+                    2: "bietet Mitschülern bereitwillig und oft unaufgefordert Hilfe an und zeigt ein rücksichtsvolles Verhalten",
+                    1: "zeichnet sich durch große Hilfsbereitschaft, ausgeprägtes Einfühlungsvermögen und stete Rücksichtnahme aus"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'einfuehlungsvermoegen_verhalten', label: 'Einfühlungsvermögen & Konfliktfähigkeit', default: 3, // Erweiterung
+                levels: {
+                    6: "zeigt kaum Einfühlungsvermögen, reagiert oft unangemessen auf andere und trägt wenig zur Lösung von Konflikten bei",
+                    5: "zeigt wenig Einfühlungsvermögen in die Belange anderer und hat Schwierigkeiten, Konflikte angemessen zu lösen",
+                    4: "sollte noch lernen, die Bedürfnisse und Gefühle anderer besser wahrzunehmen und Konflikte konstruktiver anzugehen",
+                    3: "zeigt grundlegendes Einfühlungsvermögen in die Situation anderer und bemüht sich um faire Lösungen bei Meinungsverschiedenheiten",
+                    2: "zeigt gutes Einfühlungsvermögen für die Anliegen und Gefühle anderer und trägt aktiv zu einer konstruktiven Konfliktlösung bei",
+                    1: "geht stets sehr einfühlsam und verständnisvoll auf Mitschüler ein und zeigt ein vorbildliches Verhalten in Konfliktsituationen"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            }
+        ]
+    }
+};
+
+
+        let studentNameEl, genderRadioEls, resetBtnEl, copyBtnEl, generateBtnEl;
         let validationSummaryEl, resultSectionEl, resultTextEl;
         let categoryContainerEl;
-        let selectedTraitsData = {}; 
+        let selectedTraitsData = {};
 
-        document.addEventListener('DOMContentLoaded', initializeApp);
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            loadSettings(); // Lade API Key beim Start
+        });
 
         function initializeApp() {
             studentNameEl = document.getElementById('student-name');
             genderRadioEls = document.querySelectorAll('input[name="gender"]');
             resetBtnEl = document.getElementById('reset-btn');
             copyBtnEl = document.getElementById('copy-btn');
+            generateBtnEl = document.getElementById('generate-btn');
             validationSummaryEl = document.getElementById('validation-summary');
             resultSectionEl = document.getElementById('result-section');
             resultTextEl = document.getElementById('result-text-area');
@@ -615,7 +893,6 @@ body {
             renderCategoriesAndTraits();
             addEventListeners();
             updateAllCategoryCounters();
-            validateAllInputsAndGenerate(); 
 
             const currentYear = new Date().getFullYear();
             const copyrightYearEl = document.getElementById('copyright-year');
@@ -623,14 +900,14 @@ body {
                 copyrightYearEl.textContent = `© ${currentYear} Verbalbeurteilungs-Assistent`;
             }
         }
-
+        
         function renderCategoriesAndTraits() {
             categoryContainerEl.innerHTML = '';
-            selectedTraitsData = {}; 
+            selectedTraitsData = {};
 
             categoryOrder.forEach(catKey => {
                 const categoryData = assessmentTraits[catKey];
-                selectedTraitsData[catKey] = {}; 
+                selectedTraitsData[catKey] = {};
 
                 const categoryWrapper = document.createElement('div');
                 categoryWrapper.className = 'category-wrapper';
@@ -670,7 +947,7 @@ body {
                         </div>
                         <div class="trait-controls hidden">
                             <div class="slider-container">
-                                <input type="range" min="1" max="6" value="${defaultSliderValue}" class="slider" 
+                                <input type="range" min="1" max="6" value="${defaultSliderValue}" class="slider"
                                        data-category-key="${catKey}" data-trait-id="${trait.id}">
                                 <div class="slider-labels">
                                     ${Object.keys(SHARED_LEVEL_LABELS).sort((a, b) => b - a).map(level => `<span>${level}</span>`).join('')}
@@ -683,7 +960,7 @@ body {
 
                     const checkbox = traitItemEl.querySelector('input[type="checkbox"]');
                     const controls = traitItemEl.querySelector('.trait-controls');
-                    
+
                     const isCheckedByDefault = trait.defaultChecked !== false;
                     checkbox.checked = isCheckedByDefault;
 
@@ -698,15 +975,9 @@ body {
         }
 
         function addEventListeners() {
-            studentNameEl.addEventListener('input', () => {
-                validateAllInputsAndGenerate();
-                updateAllPreviews(); 
-            });
-            genderRadioEls.forEach(radio => radio.addEventListener('change', () => {
-                validateAllInputsAndGenerate();
-                updateAllPreviews(); 
-            }));
-            
+            studentNameEl.addEventListener('input', updateAllPreviews);
+            genderRadioEls.forEach(radio => radio.addEventListener('change', updateAllPreviews));
+
             categoryContainerEl.addEventListener('change', function(event) {
                 if (event.target.matches('input[type="checkbox"][data-category-key]')) {
                     handleTraitCheckboxChange(event);
@@ -717,20 +988,12 @@ body {
                     handleSliderChange(event);
                 }
             });
-            
+
+            if (generateBtnEl) {
+                generateBtnEl.addEventListener('click', handleGenerateButtonClick);
+            }
             resetBtnEl.addEventListener('click', resetForm);
             copyBtnEl.addEventListener('click', copyToClipboard);
-        }
-        
-        function validateAllInputsAndGenerate() {
-            const isValid = validateAllInputs();
-            if (isValid) {
-                generateAssessmentTextInternal();
-            } else {
-                // GEÄNDERT: .textContent zu .value
-                resultTextEl.value = "Bitte korrigieren Sie die Eingabefehler oder wählen Sie Aspekte aus.";
-                resultSectionEl.classList.remove('hidden'); 
-            }
         }
 
         function updateAllPreviews() {
@@ -740,7 +1003,7 @@ body {
                 categoryData.traits.forEach(trait => {
                     if (selectedInCategory.hasOwnProperty(trait.id)) {
                         updateTraitPreview(catKey, trait.id, selectedInCategory[trait.id]);
-                    } else { 
+                    } else {
                         const slider = document.querySelector(`input[type="range"][data-category-key="${catKey}"][data-trait-id="${trait.id}"]`);
                         if (slider) {
                            const previewEl = slider.closest('.trait-item').querySelector('.trait-preview');
@@ -757,7 +1020,7 @@ body {
             const traitId = checkbox.dataset.traitId;
             const traitItemEl = checkbox.closest('.trait-item');
             const controls = traitItemEl.querySelector('.trait-controls');
-            
+
             if (checkbox.checked) {
                 controls.classList.remove('hidden');
                 traitItemEl.classList.add('trait-item--active');
@@ -774,7 +1037,6 @@ body {
                 preview.textContent = '';
             }
             updateCategoryCounter(catKey);
-            validateAllInputsAndGenerate();
         }
 
         function handleSliderChange(event) {
@@ -783,11 +1045,10 @@ body {
             const traitId = slider.dataset.traitId;
             const sliderValue = parseInt(slider.value);
             const noteValue = 7 - sliderValue;
-            
+
             if (selectedTraitsData[catKey] && selectedTraitsData[catKey].hasOwnProperty(traitId)) {
                  selectedTraitsData[catKey][traitId] = noteValue;
                  updateTraitPreview(catKey, traitId, noteValue);
-                 validateAllInputsAndGenerate();
             }
         }
 
@@ -798,7 +1059,7 @@ body {
             let phrase = traitData.levels[noteValue];
             const studentName = studentNameEl.value.trim();
             const genderValue = document.querySelector('input[name="gender"]:checked')?.value;
-            
+
             let pronounsForPreview = {};
             if (genderValue) {
                 pronounsForPreview = getPronouns(genderValue);
@@ -813,7 +1074,7 @@ body {
                 }
             }
         }
-        
+
         function updateCategoryCounter(catKey) {
             const count = Object.keys(selectedTraitsData[catKey] || {}).length;
             const counterEl = document.getElementById(`${catKey}-count`);
@@ -828,7 +1089,7 @@ body {
         function validateAllInputs() {
             let isValid = true;
             const errors = [];
-            
+
             const nameErrorEl = document.getElementById('name-error');
             if (!studentNameEl.value.trim()) {
                 nameErrorEl.textContent = 'Bitte geben Sie einen Namen ein.';
@@ -838,7 +1099,7 @@ body {
             } else {
                 nameErrorEl.classList.add('hidden');
             }
-            
+
             const genderErrorEl = document.getElementById('gender-error');
             const selectedGender = document.querySelector('input[name="gender"]:checked');
             if (!selectedGender) {
@@ -849,7 +1110,7 @@ body {
             } else {
                 genderErrorEl.classList.add('hidden');
             }
-            
+
             let totalSelectedTraits = 0;
             categoryOrder.forEach(catKey => {
                 totalSelectedTraits += Object.keys(selectedTraitsData[catKey] || {}).length;
@@ -863,20 +1124,20 @@ body {
                 validationSummaryEl.innerHTML = `<strong>Bitte korrigieren Sie:</strong><br>• ${errors.join('<br>• ')}`;
                 validationSummaryEl.className = 'validation-summary error';
             } else if (isValid) {
-                 validationSummaryEl.innerHTML = `Alle Eingaben sind gültig. Die Beurteilung wird automatisch aktualisiert.`;
                  validationSummaryEl.className = 'validation-summary success';
-            } else { 
+                 validationSummaryEl.innerHTML = `Alle Eingaben sind gültig.`;
+            } else {
                  validationSummaryEl.className = 'validation-summary error';
                  validationSummaryEl.innerHTML = `Bitte überprüfen Sie Ihre Auswahl. Mindestens ein Aspekt muss ausgewählt sein.`;
             }
             validationSummaryEl.classList.remove('hidden');
             return isValid;
         }
-        
-        function getPronouns(genderValue) { 
+
+        function getPronouns(genderValue) {
             if (genderValue === 'male') {
                 return { "{er_sie}": "er", "{sein_ihr}": "sein", "{ihn_sie}": "ihn", "{ihm_ihr}": "ihm", "{Respektpronomen}": "er", "{Er_Sie}": "Er", "{Sein_Ihr}": "Sein"};
-            } else { 
+            } else {
                 return { "{er_sie}": "sie", "{sein_ihr}": "ihr", "{ihn_sie}": "sie", "{ihm_ihr}": "ihr", "{Respektpronomen}": "sie", "{Er_Sie}": "Sie", "{Sein_Ihr}": "Ihr"};
             }
         }
@@ -891,25 +1152,15 @@ body {
             return personalized;
         }
 
-        function capitalizeFirstLetter(string) {
-            if (!string) return "";
-            return string.charAt(0).toUpperCase() + string.slice(1);
-        }
-        
-        function splitClause(clauseText) {
-            const firstSpaceIndex = clauseText.indexOf(" ");
-            if (firstSpaceIndex === -1) { 
-                return { verb: clauseText, rest: "" };
-            }
-            return {
-                verb: clauseText.substring(0, firstSpaceIndex),
-                rest: clauseText.substring(firstSpaceIndex + 1).trim()
+        function collectAssessmentData() {
+            const studentName = studentNameEl.value.trim();
+            const genderValue = document.querySelector('input[name="gender"]:checked')?.value;
+
+            const data = {
+                studentName: studentName,
+                gender: genderValue,
+                selectedTraits: []
             };
-        }
-        
-        function populateClauseQueue(studentName, gender) {
-            const pronouns = getPronouns(gender);
-            const finalQueue = [];
 
             categoryOrder.forEach(catKey => {
                 const categoryData = assessmentTraits[catKey];
@@ -918,107 +1169,103 @@ body {
                     if (checkbox && checkbox.checked) {
                         if (selectedTraitsData[catKey] && selectedTraitsData[catKey].hasOwnProperty(trait.id)) {
                             const noteValue = selectedTraitsData[catKey][trait.id];
-                            const rawClause = trait.levels[noteValue];
-                            finalQueue.push({
-                                text: personalizeText(rawClause, studentName, pronouns),
-                                value: noteValue
+                            const levelLabel = SHARED_LEVEL_LABELS[noteValue] || `Note ${noteValue}`;
+                            data.selectedTraits.push({
+                                category: categoryData.name,
+                                traitLabel: trait.label,
+                                note: noteValue,
+                                noteText: levelLabel,
                             });
                         }
                     }
                 });
             });
-            return finalQueue;
+            return data;
         }
 
-        function generateAssessmentTextInternal() {
-            const studentName = studentNameEl.value.trim();
-            const genderValue = document.querySelector('input[name="gender"]:checked').value;
-            const pronouns = getPronouns(genderValue);
-            
-            const clauseQueue = populateClauseQueue(studentName, genderValue);
-            
-            if (clauseQueue.length === 0) {
-                // GEÄNDERT: .textContent zu .value
-                resultTextEl.value = "Keine Aspekte für die Beurteilung ausgewählt.";
+
+        async function handleGenerateButtonClick() {
+            if (!model) { // Prüft, ob das Gemini Modell initialisiert wurde
+                alert("Gemini AI ist nicht korrekt initialisiert. Bitte geben Sie einen gültigen API Key in den Einstellungen ein.");
+                resultTextEl.value = "Fehler: Gemini AI nicht initialisiert. API-Key in Einstellungen prüfen.";
+                if (settingsModal) settingsModal.style.display = "block"; // Modal direkt öffnen
+                return;
+            }
+
+            const isValid = validateAllInputs();
+            if (!isValid) {
+                resultTextEl.value = "Bitte korrigieren Sie die Eingabefehler.";
                 resultSectionEl.classList.remove('hidden');
                 return;
             }
 
-            const finalSentences = [];
-            let currentClauseIndexInQueue = 0;
+            const assessmentData = collectAssessmentData();
 
-            while (currentClauseIndexInQueue < clauseQueue.length) {
-                const clausesForCurrentSentence = [];
-                clausesForCurrentSentence.push(clauseQueue[currentClauseIndexInQueue]);
-                currentClauseIndexInQueue++;
-
-                if (currentClauseIndexInQueue < clauseQueue.length) {
-                    clausesForCurrentSentence.push(clauseQueue[currentClauseIndexInQueue]);
-                    currentClauseIndexInQueue++;
-                }
-
-                let sentenceStartText;
-                let firstClauseText = clausesForCurrentSentence[0].text;
-
-                switch(finalSentences.length) {
-                    case 0: 
-                        sentenceStartText = capitalizeFirstLetter(studentName);
-                        break;
-                    case 1: 
-                        sentenceStartText = "Zudem";
-                        const { verb: verbZudem, rest: restZudem } = splitClause(firstClauseText);
-                        firstClauseText = `${verbZudem} ${pronouns["{er_sie}"]} ${restZudem}`.trim();
-                        break;
-                    case 2: 
-                        sentenceStartText = "Auch";
-                        const { verb: verbAuch, rest: restAuch } = splitClause(firstClauseText);
-                        firstClauseText = `${verbAuch} ${pronouns["{er_sie}"]} ${restAuch}`.trim();
-                        break;
-                    case 3: 
-                        sentenceStartText = "Des Weiteren";
-                        const { verb: verbWeiter, rest: restWeiter } = splitClause(firstClauseText);
-                        firstClauseText = `${verbWeiter} ${pronouns["{er_sie}"]} ${restWeiter}`.trim();
-                        break;
-                    default: 
-                        if (finalSentences.length > 0 && finalSentences.length % 3 === 1 ) { 
-                             sentenceStartText = capitalizeFirstLetter(studentName);
-                        } else {
-                             sentenceStartText = capitalizeFirstLetter(pronouns["{Er_Sie}"]);
-                        }
-                        if (sentenceStartText !== capitalizeFirstLetter(studentName)) {
-                            const {verb, rest} = splitClause(firstClauseText);
-                            if (verb && rest !== undefined) { 
-                                firstClauseText = `${verb} ${pronouns["{er_sie}"]} ${rest}`.trim();
-                            } else if (verb) { 
-                                firstClauseText = `${verb} ${pronouns["{er_sie}"]}`.trim();
-                            }
-                        }
-                        break;
-                }
-
-                let combinedClausesOutput;
-                if (clausesForCurrentSentence.length === 1) {
-                    combinedClausesOutput = firstClauseText;
-                } else {
-                    const secondClauseText = clausesForCurrentSentence[1].text;
-                    let conjunction = "und";
-                    const val1 = clausesForCurrentSentence[0].value;
-                    const val2 = clausesForCurrentSentence[1].value;
-                    if ((val1 <= 3 && val2 >= 4) || (val1 >= 4 && val2 <= 3)) { 
-                        conjunction = "aber";
-                    }
-                    combinedClausesOutput = `${firstClauseText} ${conjunction} ${secondClauseText}`;
-                }
-                finalSentences.push(`${sentenceStartText} ${combinedClausesOutput}.`);
+            if (assessmentData.selectedTraits.length === 0) {
+                validationSummaryEl.innerHTML = `Bitte wählen Sie mindestens einen Aspekt für die Beurteilung aus.`;
+                validationSummaryEl.className = 'validation-summary error';
+                validationSummaryEl.classList.remove('hidden');
+                resultTextEl.value = "Keine Aspekte für die Beurteilung ausgewählt.";
+                resultSectionEl.classList.remove('hidden');
+                return;
             }
-            
-            // GEÄNDERT: .textContent zu .value
-            resultTextEl.value = finalSentences.join(" ").trim();
+            validationSummaryEl.classList.add('hidden');
+
+            resultTextEl.value = "Beurteilung wird von Gemini generiert, bitte warten...";
             resultSectionEl.classList.remove('hidden');
+            generateBtnEl.disabled = true;
+            copyBtnEl.disabled = true;
+
+            try {
+                let prompt = `Erstelle eine kurze und prägnante Verbalbeurteilung für ${assessmentData.gender === 'male' ? 'einen Schüler' : 'eine Schülerin'} der 5./6. Klasse in Baden-Württemberg.\n`;
+                prompt += `Der Text soll die Kernaspekte klar und verständlich wiedergeben, ohne an Kohärenz zu verlieren, und dabei relativ kurz bleiben.\n\n`;
+                prompt += `Name: ${assessmentData.studentName}\n`;
+                prompt += `Geschlecht: ${assessmentData.gender === 'male' ? 'männlich' : 'weiblich'}\n\n`;
+                prompt += `Folgende Aspekte wurden bewertet (Skala 1=Sehr gut bis 6=Ungenügend):\n`;
+
+                assessmentData.selectedTraits.forEach(trait => {
+                    prompt += `- Kategorie "${trait.category}", Aspekt "${trait.traitLabel}": ${trait.noteText} (Note ${trait.note})\n`;
+                });
+
+                prompt += `\nFormuliere die Beurteilung als zusammenhängenden Text in ganzen Sätzen. Dabei sollten deine Formulierungen nahe an denen des Nutzers liegen.`;
+                prompt += `Verwende Pronomen passend zum Geschlecht. `;
+                prompt += `Der Text soll für ein Zeugnis geeignet sein und eine ehrliche, aber pädagogisch wertvolle Tonalität haben. `;
+                prompt += `Beginne direkt mit der Beurteilung ohne einleitende Floskeln wie "Hier ist die Beurteilung:".`;
+
+                console.log("Gemini Prompt:", prompt);
+
+                const result = await model.generateContent(prompt); // Nutzt das global initialisierte `model`
+                const response = await result.response;
+                const text = response.text();
+
+                resultTextEl.value = text;
+
+            } catch (error) {
+                console.error('Fehler beim Generieren der Beurteilung (Gemini API):', error);
+                let errorMessage = `Fehler bei der Kommunikation mit der Gemini API.`;
+                 if (error && error.message) {
+                    errorMessage += ` Details: ${error.message}`;
+                    if (error.message.includes("API key not valid") || (error.toString && error.toString().includes("API key not valid")) || error.message.includes("permission denied")) {
+                        errorMessage = "Der Gemini API-Schlüssel ist ungültig, nicht korrekt konfiguriert oder hat keine Berechtigung. Bitte überprüfen Sie ihn in den Einstellungen.";
+                        if (settingsModal) settingsModal.style.display = "block";
+                    } else if (error.message.includes("quota") || (error.toString && error.toString().includes("quota"))) {
+                        errorMessage = "Das API-Kontingent wurde überschritten. Bitte versuchen Sie es später erneut oder überprüfen Sie Ihr Google Cloud Projekt.";
+                    } else if (error.message.includes("Invalid JSON payload") || (error.toString && error.toString().includes("Invalid JSON payload"))) {
+                         errorMessage = "Fehler im Anfrageformat an Gemini. Bitte kontaktieren Sie den Entwickler.";
+                    } else if (error.message.includes("fetch") && error.message.toLowerCase().includes("failed to fetch")) {
+                        errorMessage = "Netzwerkfehler oder CORS-Problem. Stellen Sie sicher, dass eine Internetverbindung besteht und der API-Endpunkt erreichbar ist. (Lokale Datei: Dies sollte nicht passieren, prüfen Sie die Konsole auf detailliertere Fehler)";
+                    }
+                } else if (error && error.toString) {
+                     errorMessage += ` Details: ${error.toString()}`;
+                }
+                resultTextEl.value = errorMessage;
+            } finally {
+                generateBtnEl.disabled = false;
+                copyBtnEl.disabled = false;
+            }
         }
 
         function copyToClipboard() {
-            // GEÄNDERT: .textContent zu .value, um manuelle Änderungen zu erfassen
             const textToCopy = resultTextEl.value;
             if (navigator.clipboard && textToCopy) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
@@ -1056,15 +1303,14 @@ body {
         function resetForm() {
             studentNameEl.value = '';
             genderRadioEls.forEach(radio => radio.checked = false);
-            
-            renderCategoriesAndTraits(); 
+
+            renderCategoriesAndTraits();
             updateAllCategoryCounters();
-            validateAllInputsAndGenerate(); 
-            
-            validationSummaryEl.classList.add('hidden'); 
+            resultTextEl.value = '';
+            resultSectionEl.classList.add('hidden');
+            validationSummaryEl.classList.add('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
     </script>
 </body>
 </html>
