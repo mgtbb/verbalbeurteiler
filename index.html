@@ -515,7 +515,7 @@ body {
     <header class="header">
         <div class="container">
             <h1>Verbalbeurteilungs-Assistent (Gemini)</h1>
-            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V2.0.1)</p>
+            <p class="header__subtitle">Für Klassen 5/6 in Baden-Württemberg (V2.1)</p>
         </div>
     </header>
 
@@ -689,7 +689,7 @@ body {
 
         const CATEGORY_KEYS = {
             ARBEITSHALTUNG: "Arbeitshaltung",
-            SELBSTSTAENDIGKEIT: "Selbstständigkeit",
+            SELBSTSTAENDIGKEIT: "Selbstständigkeit & Lernorganisation",
             SOZIALVERHALTEN: "Sozial- und Kooperationsverhalten"
         };
         const categoryOrder = [CATEGORY_KEYS.ARBEITSHALTUNG, CATEGORY_KEYS.SELBSTSTAENDIGKEIT, CATEGORY_KEYS.SOZIALVERHALTEN];
@@ -703,144 +703,169 @@ body {
             6: "Ungenügend"
         };
 
-        const assessmentTraits = { // Deine assessmentTraits Definition bleibt hier gleich...
-            [CATEGORY_KEYS.ARBEITSHALTUNG]: {
-                name: "Arbeitshaltung",
-                description: "Motivation, Ausdauer und Konzentration",
-                traits: [
-                    { id: 'fleiss_ansatz', label: 'Motivation & Aufgabenbeginn', default: 3,
-                        levels: {
-                            6: "zeigt auch nach mehrfacher Aufforderung kaum Bereitschaft, mit Aufgaben zu beginnen",
-                            5: "beginnt mit Aufgaben oft erst nach wiederholter Aufforderung und wirkt dabei wenig motiviert",
-                            4: "benötigt häufiger einen Anstoß, um mit einer Aufgabe zu beginnen",
-                            3: "beginnt nach der Aufgabenstellung in der Regel zügig und angemessen motiviert mit der Arbeit",
-                            2: "greift neue Aufgaben bereitwillig auf und beginnt zügig mit deren Bearbeitung",
-                            1: "zeigt eine hohe Eigenmotivation und beginnt stets umgehend und zielgerichtet mit neuen Aufgaben"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'fleiss_durchfuehrung', label: 'Anstrengungsbereitschaft', default: 3,
-                        levels: {
-                            6: "verweigert häufig die Bearbeitung von Aufgaben oder bricht bei ersten Schwierigkeiten sofort ab",
-                            5: "zeigt bei der Bearbeitung von Aufgaben nur geringe Ausdauer und gibt bei Schwierigkeiten schnell auf",
-                            4: "arbeitet bei einfachen Aufgaben ausdauernd, bei größeren Herausforderungen lässt die Anstrengung jedoch nach",
-                            3: "zeigt eine im Allgemeinen gute Ausdauer und bearbeitet die gestellten Aufgaben bis zum Ende",
-                            2: "arbeitet konzentriert und ausdauernd an Aufgaben und lässt sich auch von Schwierigkeiten nicht entmutigen",
-                            1: "zeigt eine vorbildliche Anstrengungsbereitschaft und Ausdauer, auch bei komplexen und langwierigen Aufgaben"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'sorgfalt_material', label: 'Umgang mit Material', default: 3, defaultChecked: false,
-                        levels: {
-                            6: "geht durchweg sehr unachtsam und oft zerstörerisch mit Arbeitsmaterialien um",
-                            5: "geht oft unachtsam mit Arbeitsmaterialien um und muss häufiger ermahnt werden",
-                            4: "sollte noch sorgsamer mit {sein_ihr}en Arbeitsmaterialien umgehen",
-                            3: "geht in der Regel sorgfältig mit {sein_ihr}en Arbeitsmaterialien um",
-                            2: "geht gut und ordentlich mit {sein_ihr}en Arbeitsmaterialien um",
-                            1: "geht stets vorbildlich sorgfältig und verantwortungsbewusst mit Arbeitsmaterialien um"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'sorgfalt_ausfuehrung', label: 'Genauigkeit der Ausführung', default: 3,
-                        levels: {
-                            6: "arbeitet durchweg flüchtig und mit vielen Fehlern",
-                            5: "arbeitet häufig mit mangelnder Genauigkeit bei Aufgaben",
-                            4: "arbeitet bei der Ausführung oft noch nicht durchgängig genau",
-                            3: "erledigt Aufgaben mit einer im Großen und Ganzen angemessenen Genauigkeit",
-                            2: "erledigt Aufgaben mit guter Genauigkeit",
-                            1: "zeichnet sich durch eine sehr genaue und sorgfältige Arbeitsweise aus"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'ausdauer_konzentration', label: 'Konzentrationsfähigkeit', default: 3,
-                        levels: {
-                            6: "kann sich auch bei kurzen Aufgaben kaum konzentrieren",
-                            5: "hat deutliche Schwierigkeiten, sich länger zu konzentrieren",
-                            4: "kann die Konzentration oft nur für eine kurze Zeitspanne aufrechterhalten",
-                            3: "zeigt eine dem Alter angemessene Konzentrationsspanne",
-                            2: "kann sich auch bei längeren Aufgaben gut konzentrieren",
-                            1: "kann auch über längere Phasen sehr konzentriert und fokussiert arbeiten"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'ausdauer_ablenkung', label: 'Umgang mit Ablenkungen', default: 3,
-                        levels: {
-                            6: "lässt sich ständig ablenken und stört dabei auch andere",
-                            5: "lässt sich sehr leicht ablenken und findet schwer zur Aufgabe zurück",
-                            4: "lässt sich noch oft von äußeren Reizen ablenken, findet aber zumeist zur Aufgabe zurück",
-                            3: "lässt sich nur gelegentlich ablenken und kann sich dann wieder auf die Arbeit fokussieren",
-                            2: "lässt sich kaum von äußeren Reizen ablenken",
-                            1: "lässt sich auch bei Störungen kaum von der Tätigkeit abbringen und arbeitet unbeirrt weiter"
-                        }, levelLabels: SHARED_LEVEL_LABELS }
-                ]
+const assessmentTraits = {
+    [CATEGORY_KEYS.ARBEITSHALTUNG]: {
+        name: "Arbeitshaltung",
+        description: "Motivation, Ausdauer und Konzentration",
+        traits: [
+            {
+                id: 'fleiss_ansatz', label: 'Motivation & Aufgabenbeginn', default: 3,
+                levels: {
+                    6: "zeigt auch nach wiederholter Aufforderung kaum Bereitschaft, mit Aufgaben zu beginnen und benötigt sehr viel Unterstützung, um überhaupt zu starten",
+                    5: "beginnt mit Aufgaben oft erst nach mehrfacher Aufforderung und wirkt dabei wenig motiviert, benötigt häufig Zuspruch",
+                    4: "benötigt öfter einen Anstoß oder Ermutigung, um mit einer Aufgabe zu beginnen, findet dann aber meist in die Arbeit",
+                    3: "beginnt nach der Aufgabenstellung in der Regel eigenständig und mit erkennbarer Motivation mit der Arbeit",
+                    2: "greift neue Aufgaben bereitwillig auf und beginnt zügig und motiviert mit deren Bearbeitung",
+                    1: "zeigt eine hohe Eigenmotivation und beginnt stets umgehend, zielgerichtet und mit sichtbarer Freude mit neuen Aufgaben"
+                }, levelLabels: SHARED_LEVEL_LABELS
             },
-            [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: {
-                name: "Selbstständigkeit",
-                description: "Organisation und Eigeninitiative",
-                traits: [
-                    { id: 'eigeninitiative_ideen', label: 'Ideenfindung', default: 3,
-                        levels: {
-                            6: "zeigt keinerlei Eigeninitiative und beteiligt sich nicht an der Ideenfindung",
-                            5: "zeigt selten Eigeninitiative bei der Ideenfindung",
-                            4: "bringt sich noch selten mit eigenen Ideen ein, greift aber Anregungen auf",
-                            3: "bringt gelegentlich eigene, passende Ideen in den Unterricht ein",
-                            2: "bringt oft gute eigene Ideen ein und sucht nach kreativen Lösungswegen",
-                            1: "zeichnet sich durch hohe Eigeninitiative bei der Ideenfindung und kreative Ansätze aus"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'eigeninitiative_umsetzung', label: 'Selbstständige Umsetzung', default: 3, defaultChecked: false,
-                        levels: {
-                            6: "benötigt bei jedem Schritt detaillierte Anleitung und Kontrolle",
-                            5: "wartet meist auf detaillierte Anweisungen, bevor {er_sie} tätig wird",
-                            4: "benötigt noch oft Anleitung, um Aufgaben eigenständig umzusetzen",
-                            3: "setzt Aufgaben nach einer Anleitung in der Regel selbstständig um",
-                            2: "setzt Ideen engagiert und selbstständig um",
-                            1: "setzt Ideen eigenverantwortlich und zielgerichtet um"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'verantwortung_material_termine', label: 'Organisation', default: 3,
-                        levels: {
-                            6: "vergisst Materialien und Termine durchgängig und zeigt kein Bemühen um Besserung",
-                            5: "zeigt erhebliche Nachlässigkeit im Umgang mit Material und Terminen",
-                            4: "muss noch zuverlässiger auf {sein_ihr}e Materialien und Termine achten",
-                            3: "achtet meist auf die Vollständigkeit {sein_ihr}er Materialien und die Einhaltung von Terminen",
-                            2: "geht verantwortungsvoll mit Materialien um und hält Termine zuverlässig ein",
-                            1: "zeigt große Zuverlässigkeit und Sorgfalt im Umgang mit Materialien und Terminen"
-                        }, levelLabels: SHARED_LEVEL_LABELS }
-                ]
+            {
+                id: 'fleiss_durchfuehrung', label: 'Anstrengungsbereitschaft & Ausdauer', default: 3, // Zusammengefasst für bessere Unterscheidung zu Konzentration
+                levels: {
+                    6: "verweigert häufig die Bearbeitung von Aufgaben oder bricht bei ersten Schwierigkeiten sofort ab und lässt sich kaum zur Weiterarbeit bewegen",
+                    5: "zeigt bei der Bearbeitung von Aufgaben nur geringe Ausdauer und gibt bei Schwierigkeiten schnell auf, benötigt viel Zuspruch zur Weiterarbeit",
+                    4: "arbeitet bei einfachen Aufgaben ausdauernd, bei größeren Herausforderungen oder Schwierigkeiten lässt die Anstrengung jedoch spürbar nach",
+                    3: "zeigt eine im Allgemeinen gute Ausdauer und bearbeitet die gestellten Aufgaben zumeist bis zum Ende, auch wenn kleine Hürden auftreten",
+                    2: "arbeitet engagiert und ausdauernd an Aufgaben und lässt sich auch von Schwierigkeiten nicht schnell entmutigen",
+                    1: "zeigt eine vorbildliche Anstrengungsbereitschaft und Ausdauer, auch bei komplexen und langwierigen Aufgaben, und sucht aktiv nach Lösungen"
+                }, levelLabels: SHARED_LEVEL_LABELS
             },
-            [CATEGORY_KEYS.SOZIALVERHALTEN]: {
-                name: "Sozial- und Kooperationsverhalten",
-                description: "Teamfähigkeit, Kommunikation und Regelverhalten",
-                traits: [
-                    { id: 'kooperation_teamarbeit', label: 'Einbringen in Teamarbeit', default: 3,
-                        levels: {
-                            6: "verweigert häufig die Zusammenarbeit oder stört Gruppenprozesse erheblich",
-                            5: "hält sich in Teamarbeit oft zurück oder beteiligt sich nur passiv",
-                            4: "sollte sich noch aktiver und konstruktiver in Gruppenprozesse einbringen",
-                            3: "arbeitet in der Regel kooperativ und konstruktiv in Gruppen mit",
-                            2: "zeigt sich als kooperatives und geschätztes Mitglied in Arbeitsgruppen",
-                            1: "bringt sich stets konstruktiv, engagiert und rücksichtsvoll in Teams ein"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'kooperation_regeln', label: 'Einhaltung von Regeln', default: 3,
-                        levels: {
-                            6: "missachtet Regeln häufig und bewusst",
-                            5: "beachtet Absprachen und Regeln oft nicht und benötigt häufige Ermahnungen",
-                            4: "muss noch konsequenter auf gemeinsame Regeln und Absprachen achten",
-                            3: "hält sich im Allgemeinen an getroffene Absprachen und Regeln",
-                            2: "achtet auf die Einhaltung von Gruppenregeln und Absprachen",
-                            1: "achtet vorbildlich auf Regeln und unterstützt andere dabei"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'hilfsbereitschaft_angebot', label: 'Hilfe anbieten', default: 3,
-                        levels: {
-                            6: "zeigt keinerlei Hilfsbereitschaft und verhält sich oft egoistisch",
-                            5: "zeigt selten von sich aus Hilfsbereitschaft",
-                            4: "könnte noch häufiger von sich aus Hilfe anbieten und auf andere zugehen",
-                            3: "ist hilfsbereit, wenn {er_sie} um Unterstützung gebeten wird",
-                            2: "bietet Mitschülern bereitwillig und oft unaufgefordert Hilfe an",
-                            1: "zeichnet sich durch große Hilfsbereitschaft und ein ausgeprägtes Einfühlungsvermögen aus"
-                        }, levelLabels: SHARED_LEVEL_LABELS },
-                    { id: 'einfuehlungsvermoegen_verhalten', label: 'Einfühlungsvermögen', default: 3,
-                        levels: {
-                            6: "zeigt keinerlei Einfühlungsvermögen und reagiert oft unangemessen auf andere",
-                            5: "zeigt kaum Einfühlungsvermögen in die Belange anderer",
-                            4: "sollte noch lernen, die Bedürfnisse und Gefühle anderer besser wahrzunehmen",
-                            3: "zeigt grundlegendes Einfühlungsvermögen in die Situation anderer",
-                            2: "zeigt gutes Einfühlungsvermögen für die Anliegen und Gefühle anderer",
-                            1: "geht stets sehr einfühlsam und verständnisvoll auf {sein_ihr}e Mitschüler ein"
-                        }, levelLabels: SHARED_LEVEL_LABELS }
-                ]
+            {
+                id: 'sorgfalt_material', label: 'Umgang mit Arbeitsmaterialien', default: 3, defaultChecked: false,
+                levels: {
+                    6: "geht durchweg sehr unachtsam und oft achtlos mit Arbeitsmaterialien um, was zu häufigem Verlust oder Beschädigung führt",
+                    5: "geht oft unachtsam mit Arbeitsmaterialien um und muss wiederholt an einen sorgfältigen Umgang erinnert werden",
+                    4: "sollte noch konsequenter auf einen sorgsamen Umgang mit {sein_ihr}en Arbeitsmaterialien achten",
+                    3: "geht in der Regel angemessen sorgfältig mit {sein_ihr}en Arbeitsmaterialien um",
+                    2: "geht pfleglich und ordentlich mit {sein_ihr}en Arbeitsmaterialien um",
+                    1: "geht stets vorbildlich sorgfältig und verantwortungsbewusst mit Arbeitsmaterialien um und hält diese gut in Ordnung"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'sorgfalt_ausfuehrung', label: 'Genauigkeit & Qualität der Ausführung', default: 3, // Präziser formuliert
+                levels: {
+                    6: "arbeitet durchweg sehr flüchtig, ungenau und mit vielen Fehlern, die auch grundlegende Aspekte betreffen",
+                    5: "arbeitet häufig mit mangelnder Genauigkeit, was zu vielen Flüchtigkeitsfehlern und unvollständigen Ergebnissen führt",
+                    4: "arbeitet bei der Ausführung von Aufgaben oft noch nicht durchgängig genau und sollte Ergebnisse sorgfältiger überprüfen",
+                    3: "erledigt Aufgaben mit einer im Großen und Ganzen zufriedenstellenden Genauigkeit und achtet auf die wesentlichen Aspekte",
+                    2: "erledigt Aufgaben mit guter Genauigkeit und sichtbarem Bemühen um eine qualitativ gute Ausführung",
+                    1: "zeichnet sich durch eine sehr genaue, sorgfältige und qualitativ hochwertige Arbeitsweise aus"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'ausdauer_konzentration', label: 'Konzentrationsfähigkeit', default: 3,
+                levels: {
+                    6: "kann sich auch bei kurzen und einfachen Aufgaben kaum konzentrieren und schweift ständig ab",
+                    5: "hat deutliche und wiederkehrende Schwierigkeiten, sich über einen längeren Zeitraum zu konzentrieren",
+                    4: "kann die Konzentration oft nur für eine begrenzte Zeitspanne aufrechterhalten und benötigt dann Pausen oder neue Impulse",
+                    3: "zeigt eine dem Alter und den Anforderungen im Unterricht überwiegend angemessene Konzentrationsspanne",
+                    2: "kann sich auch bei längeren und anspruchsvolleren Aufgaben gut und ausdauernd konzentrieren",
+                    1: "kann auch über längere Phasen sehr konzentriert, fokussiert und ungestört arbeiten"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'ausdauer_ablenkung', label: 'Umgang mit Ablenkungen', default: 3,
+                levels: {
+                    6: "lässt sich ständig durch äußere Reize oder eigene Impulse ablenken und stört dabei häufig auch Mitschüler",
+                    5: "lässt sich sehr leicht ablenken, findet nur schwer wieder zur Aufgabe zurück und stört manchmal andere",
+                    4: "lässt sich noch relativ oft von äußeren Reizen ablenken, findet aber zumeist mit etwas Unterstützung zur Aufgabe zurück",
+                    3: "lässt sich gelegentlich ablenken, kann sich dann aber in der Regel selbstständig wieder auf die Arbeit fokussieren",
+                    2: "lässt sich selten von äußeren Reizen ablenken und kann sich gut auf die Aufgabe konzentrieren",
+                    1: "arbeitet sehr fokussiert und lässt sich auch bei Störungen kaum von der Tätigkeit abbringen"
+                }, levelLabels: SHARED_LEVEL_LABELS
             }
-        };
-
+        ]
+    },
+    [CATEGORY_KEYS.SELBSTSTAENDIGKEIT]: {
+        name: "Selbstständigkeit & Lernorganisation", 
+        description: "Organisation, Eigeninitiative und Problemlösefähigkeit",
+        traits: [
+            {
+                id: 'eigeninitiative_ideen', label: 'Kreativität & Ideenfindung', default: 3, // Umbenannt und erweitert
+                levels: {
+                    6: "zeigt keinerlei Eigeninitiative, beteiligt sich nicht an der Ideenfindung und nimmt Anregungen kaum auf",
+                    5: "zeigt selten Eigeninitiative bei der Ideenfindung und benötigt viele Anregungen von außen, um eigene Gedanken zu entwickeln",
+                    4: "bringt sich noch selten mit eigenen Ideen ein, greift aber Anregungen anderer auf und versucht, diese umzusetzen",
+                    3: "bringt gelegentlich eigene, passende Ideen in den Unterricht ein und zeigt Bereitschaft, neue Lösungswege zu bedenken",
+                    2: "bringt oft gute und durchdachte eigene Ideen ein und sucht nach kreativen und passenden Lösungswegen",
+                    1: "zeichnet sich durch hohe Eigeninitiative, originelle Ideen und kreative Ansätze bei der Lösung von Aufgaben aus"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'eigeninitiative_umsetzung', label: 'Selbstständige Umsetzung & Planung', default: 3, defaultChecked: false, // Erweiterung
+                levels: {
+                    6: "benötigt bei jedem Arbeitsschritt detaillierte Anleitung und engmaschige Kontrolle und kann kaum selbstständig planen",
+                    5: "wartet meist auf detaillierte Anweisungen und fordert bei der Umsetzung von Aufgaben sehr häufig Unterstützung ein",
+                    4: "benötigt noch oft Anleitung und Bestätigung, um Aufgaben eigenständig umzusetzen und Arbeitsschritte zu planen",
+                    3: "setzt Aufgaben nach einer Anleitung in der Regel selbstständig und zielorientiert um und kann einfache Arbeitsschritte planen",
+                    2: "setzt Ideen und Aufgaben engagiert, planvoll und weitgehend selbstständig um",
+                    1: "setzt Ideen und Aufgaben eigenverantwortlich, zielgerichtet und mit sehr guter Planung und Organisation um"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'verantwortung_material_termine', label: 'Zuverlässigkeit & Organisation', default: 3, // Umbenannt für breitere Abdeckung
+                levels: {
+                    6: "vergisst Materialien und Termine durchgängig und zeigt kaum Bemühen um Besserung, auch nach wiederholter Erinnerung",
+                    5: "zeigt erhebliche Nachlässigkeit im Umgang mit Material und Terminen und muss sehr oft erinnert werden",
+                    4: "muss noch zuverlässiger auf {sein_ihr}e Arbeitsmaterialien und die Einhaltung von Terminen achten",
+                    3: "achtet meist auf die Vollständigkeit {sein_ihr}er Arbeitsmaterialien und die Einhaltung von Terminen und benötigt nur gelegentlich eine Erinnerung",
+                    2: "geht verantwortungsvoll mit {sein_ihr}en Arbeitsmaterialien um und hält Termine zuverlässig ein",
+                    1: "zeigt große Zuverlässigkeit und eine vorbildliche Organisation im Umgang mit Arbeitsmaterialien und Terminen"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            }
+        ]
+    },
+    [CATEGORY_KEYS.SOZIALVERHALTEN]: {
+        name: "Sozial- und Kooperationsverhalten",
+        description: "Teamfähigkeit, Kommunikation und Regelverhalten",
+        traits: [
+            {
+                id: 'kooperation_teamarbeit', label: 'Kooperations- & Teamfähigkeit', default: 3, // Präziser
+                levels: {
+                    6: "verweigert häufig die Zusammenarbeit, stört Gruppenprozesse erheblich oder zieht sich komplett zurück",
+                    5: "hält sich in Teamarbeit oft zurück, beteiligt sich nur passiv oder hat Schwierigkeiten, sich in eine Gruppe einzufügen",
+                    4: "sollte sich noch aktiver und konstruktiver in Gruppenprozesse einbringen und Kompromisse leichter akzeptieren",
+                    3: "arbeitet in der Regel kooperativ und konstruktiv in Gruppen mit und bringt sich situationsangemessen ein",
+                    2: "zeigt sich als engagiertes, kooperatives und hilfsbereites Mitglied in Arbeitsgruppen und trägt aktiv zum Gelingen bei",
+                    1: "bringt sich stets konstruktiv, engagiert und rücksichtsvoll in Teams ein und übernimmt dabei oft eine positive Rolle"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'kooperation_regeln', label: 'Regelbewusstsein & Verantwortungsübernahme', default: 3, // Erweiterung
+                levels: {
+                    6: "missachtet Regeln und Absprachen häufig und bewusst und zeigt wenig Einsicht bei Ermahnungen",
+                    5: "beachtet Absprachen und Regeln oft nicht und benötigt wiederholte und deutliche Ermahnungen",
+                    4: "muss noch konsequenter auf gemeinsame Regeln und Absprachen achten und Verantwortung für eigenes Handeln übernehmen",
+                    3: "hält sich im Allgemeinen an getroffene Absprachen und Regeln und zeigt Bereitschaft, Verantwortung zu übernehmen",
+                    2: "achtet zuverlässig auf die Einhaltung von Gruppenregeln sowie Absprachen und übernimmt Verantwortung für {sein_ihr} Handeln",
+                    1: "achtet vorbildlich auf Regeln sowie Absprachen, unterstützt andere dabei und übernimmt bereitwillig Verantwortung"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'hilfsbereitschaft_angebot', label: 'Hilfsbereitschaft & Rücksichtnahme', default: 3, // Erweiterung
+                levels: {
+                    6: "zeigt keinerlei Hilfsbereitschaft, verhält sich oft egoistisch und nimmt wenig Rücksicht auf andere",
+                    5: "zeigt selten von sich aus Hilfsbereitschaft und muss oft dazu aufgefordert werden, andere zu unterstützen oder Rücksicht zu nehmen",
+                    4: "könnte noch häufiger von sich aus Hilfe anbieten und aufmerksamer auf die Bedürfnisse anderer achten",
+                    3: "ist hilfsbereit, wenn {er_sie} um Unterstützung gebeten wird und nimmt in der Regel Rücksicht auf Mitschüler",
+                    2: "bietet Mitschülern bereitwillig und oft unaufgefordert Hilfe an und zeigt ein rücksichtsvolles Verhalten",
+                    1: "zeichnet sich durch große Hilfsbereitschaft, ausgeprägtes Einfühlungsvermögen und stete Rücksichtnahme aus"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            },
+            {
+                id: 'einfuehlungsvermoegen_verhalten', label: 'Einfühlungsvermögen & Konfliktfähigkeit', default: 3, // Erweiterung
+                levels: {
+                    6: "zeigt kaum Einfühlungsvermögen, reagiert oft unangemessen auf andere und trägt wenig zur Lösung von Konflikten bei",
+                    5: "zeigt wenig Einfühlungsvermögen in die Belange anderer und hat Schwierigkeiten, Konflikte angemessen zu lösen",
+                    4: "sollte noch lernen, die Bedürfnisse und Gefühle anderer besser wahrzunehmen und Konflikte konstruktiver anzugehen",
+                    3: "zeigt grundlegendes Einfühlungsvermögen in die Situation anderer und bemüht sich um faire Lösungen bei Meinungsverschiedenheiten",
+                    2: "zeigt gutes Einfühlungsvermögen für die Anliegen und Gefühle anderer und trägt aktiv zu einer konstruktiven Konfliktlösung bei",
+                    1: "geht stets sehr einfühlsam und verständnisvoll auf Mitschüler ein und zeigt ein vorbildliches Verhalten in Konfliktsituationen"
+                }, levelLabels: SHARED_LEVEL_LABELS
+            }
+        ]
+    }
+};
 
         let studentNameEl, genderRadioEls, resetBtnEl, copyBtnEl, generateBtnEl;
         let validationSummaryEl, resultSectionEl, resultTextEl;
