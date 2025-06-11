@@ -1227,7 +1227,7 @@ const assessmentTraits = {
                     prompt += `- Kategorie "${trait.category}", Aspekt "${trait.traitLabel}": ${trait.noteText} (Note ${trait.note})\n`;
                 });
 
-                prompt += `\nFormuliere die Beurteilung als zusammenhängenden Text in ganzen Sätzen. Dabei sollten deine Formulierungen nahe an denen des Nutzers liegen.`;
+                prompt += `\nFormuliere die Beurteilung als zusammenhängenden Text in ganzen Sätzen. Dabei sollten deine Formulierungen nahe an denen des Nutzers liegen. Die Namen der Kategorien musst du jedoch nicht wortgleich übernehmen, du kannst z.B. auch Nomen in Verben umschreiben und Aspekte bündeln, sofern es sinnvoll ist.`;
                 prompt += `Verwende Pronomen passend zum Geschlecht. `;
                 prompt += `Der Text soll für ein Zeugnis geeignet sein und eine ehrliche, aber pädagogisch wertvolle Tonalität haben. `;
                 prompt += `Beginne direkt mit der Beurteilung ohne einleitende Floskeln wie "Hier ist die Beurteilung:".`;
