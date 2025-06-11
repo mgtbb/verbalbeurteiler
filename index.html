@@ -1216,7 +1216,7 @@ const assessmentTraits = {
 
             try {
                 let prompt = `Erstelle eine kurze und prägnante Verbalbeurteilung für ${assessmentData.gender === 'male' ? 'einen Schüler' : 'eine Schülerin'} der 5./6. Klasse in Baden-Württemberg.\n`;
-                prompt += `Der Text soll die Kernaspekte klar und verständlich wiedergeben, ohne an Kohärenz zu verlieren, und dabei relativ kurz bleiben.\n\n`;
+                prompt += `Der Text soll die Kernaspekte klar und verständlich wiedergeben, ohne an Kohärenz zu verlieren, und dabei relativ kurz bleiben. Der Text insgesamt soll einen Absatz lang sein und eine hohe Kohärenz aufweisen.\n\n`;
                 prompt += `Name: ${assessmentData.studentName}\n`;
                 prompt += `Geschlecht: ${assessmentData.gender === 'male' ? 'männlich' : 'weiblich'}\n\n`;
                 prompt += `Folgende Aspekte wurden bewertet (Skala 1=Sehr gut bis 6=Ungenügend):\n`;
