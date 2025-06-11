@@ -1244,16 +1244,18 @@ const assessmentTraits = {
 
             const pronouns = getPronouns(assessmentData.gender);
 
-            try {
-                // ------ VERBESSERTER PROMPT START ------
-                let prompt = `Erstelle eine Verbalbeurteilung für ${assessmentData.studentName} (${assessmentData.gender === 'male' ? 'einen Schüler' : 'eine Schülerin'}) der 5./6. Klasse in Baden-Württemberg.\n`;
-                prompt += `Die Beurteilung soll ein zusammenhängender, sprachlich "runder" und gut lesbarer Text sein, der die ausgewählten Aspekte klar, differenziert und pädagogisch wertvoll darstellt. Die Länge sollte etwa 8-12 Zeilen nicht überschreiten.\n\n`;
+                      try {
 
-                prompt += `Grundlage für die Formulierungen sind die folgenden spezifischen Beobachtungen und Bewertungen (Textbausteine). Deine Hauptaufgabe ist es, die Kernaussagen dieser Textbausteine geschickt und flüssig in den Gesamttext zu integrieren. Wandle sie bei Bedarf sprachlich um (z.B. Nomen zu Verben, Umstellung von Satzteilen) und verbinde sie sinnvoll zu ganzen Sätzen. Vermeide unbedingt nichtssagende Füllsätze oder die reine Auflistung von Kategorienamen. Der Fokus liegt auf konkreten Verhaltensbeschreibungen, die aus den Bausteinen hervorgehen.\n\n`;
+                let prompt = `Erstelle eine Verbalbeurteilung für ${assessmentData.studentName} (${assessmentData.gender === 'male' ? 'einen Schüler' : 'eine Schülerin'}) der 5./6. Klasse in Baden-Württemberg.\n`;
+                prompt += `**Wichtigstes Ziel: Der gesamte Text der Beurteilung darf eine Länge von ca. 70-90 Wörtern NICHT überschreiten. Formuliere äußerst prägnant und fokussiere dich auf die Kernaussagen.**\n\n`; // Längenangabe an den Anfang und präzisiert
+
+                prompt += `Die Beurteilung soll ein zusammenhängender, sprachlich "runder" und gut lesbarer Text sein, der die ausgewählten Aspekte klar, differenziert und pädagogisch wertvoll darstellt.\n\n`;
+
+                prompt += `Grundlage für die Formulierungen sind die folgenden spezifischen Beobachtungen und Bewertungen (Textbausteine). Deine Hauptaufgabe ist es, die Kernaussagen dieser Textbausteine geschickt und flüssig in den Gesamttext zu integrieren, OHNE die vorgegebene Wortanzahl zu überschreiten. Wandle sie bei Bedarf sprachlich um (z.B. Nomen zu Verben, Umstellung von Satzteilen) und verbinde sie sinnvoll zu ganzen Sätzen. Vermeide unbedingt nichtssagende Füllsätze oder die reine Auflistung von Kategorienamen. Der Fokus liegt auf konkreten Verhaltensbeschreibungen.\n\n`;
 
                 prompt += `Schüler/in: ${assessmentData.studentName}\n`;
                 prompt += `Geschlecht: ${assessmentData.gender === 'male' ? 'männlich' : 'weiblich'}\n\n`;
-                prompt += "Textbausteine (diese sind bereits mit Namen und Pronomen personalisiert – nutze ihre Kernaussagen als direkte Grundlage für deine Sätze und formuliere sie aus):\n";
+                prompt += "Textbausteine (diese sind bereits mit Namen und Pronomen personalisiert – nutze ihre Kernaussagen als direkte Grundlage für deine Sätze und formuliere sie aus. Fasse dich dabei kurz):\n";
 
                 assessmentData.selectedTraits.forEach(trait => {
                     const personalizedTraitText = personalizeText(trait.rawText, assessmentData.studentName, pronouns);
@@ -1261,17 +1263,16 @@ const assessmentTraits = {
                 });
 
                 prompt += `\nAnweisungen für die Formulierung der Beurteilung:\n`;
-                prompt += `1. Beginne die Beurteilung direkt mit dem Namen des Schülers/der Schülerin (z.B. "${assessmentData.studentName} zeigt..."). Verwende keine einleitenden Floskeln wie "Hier ist die Beurteilung:".\n`;
+                prompt += `1. Beginne die Beurteilung direkt mit dem Namen des Schülers/der Schülerin (z.B. "${assessmentData.studentName} zeigt..."). Keine einleitenden Floskeln.\n`;
                 prompt += `2. Formuliere aus den oben genannten personalisierten Textbausteinen einen kohärenten, fließenden Text. Die Sätze sollen die Kernaussage des jeweiligen Bausteins präzise wiedergeben, aber natürlich und nicht wie eine bloße Aufzählung klingen.\n`;
-                prompt += `3. Anstatt nur abstrakte Kategorien oder Fähigkeitsbezeichnungen zu nennen (z.B. "Im Bereich Arbeitshaltung..." oder "Die Zuverlässigkeit ist..."), beschreibe das konkrete Verhalten oder die Eigenschaft, die dem jeweiligen Textbaustein zugrunde liegt. Die Aussage des Bausteins soll im Satz erkennbar sein.\n`;
-                prompt += `4. **Wichtig - Beispiel für eine unerwünschte, nichtssagende Formulierung:** "Seine Zuverlässigkeit & Organisation sind zufriedenstellend."\n`;
-                prompt += `   **Erwünschte Formulierung (basierend auf einem Baustein wie "achtet meist auf die Vollständigkeit seiner Materialien und die Einhaltung von Terminen"):** "${assessmentData.studentName} achtet beispielsweise meist auf die Vollständigkeit seiner Materialien und die Einhaltung von Terminen." oder "Im Bereich der Organisation zeigt ${assessmentData.studentName}, dass er/sie meist auf vollständige Materialien und Termine achtet."\n`;
-                prompt += `5. Variiere den Satzbau. Nicht jeder Satz muss mit "${assessmentData.studentName}" oder einem Pronomen beginnen. Nutze auch Nebensätze oder verbindende Elemente.\n`;
-                prompt += `6. Bündle thematisch ähnliche Aspekte oder Beobachtungen sinnvoll, um Wiederholungen zu vermeiden und einen guten Lesefluss zu erzeugen. Fasse zum Beispiel mehrere positive Beobachtungen zur Arbeitshaltung zusammen, bevor du auf einen anderen Bereich eingehst.\n`;
-                prompt += `7. Die Tonalität soll stets ehrlich, aber immer pädagogisch wertvoll, anerkennend und konstruktiv sein, passend für ein Zeugnis. Bei weniger positiven Aspekten formuliere entwicklungsfördernd.\n`;
-                prompt += `8. Verwende durchgängig die korrekten Pronomen für das Geschlecht und achte auf grammatische Korrektheit.\n`;
-                prompt += `9. Der fertige Text sollte prägnant sein und die angegebene Länge von ca. 90 Wörtern in der Regel nicht überschreiten.\n`;
-            
+                prompt += `3. Anstatt nur abstrakte Kategorien zu nennen, beschreibe das konkrete Verhalten oder die Eigenschaft, die dem jeweiligen Textbaustein zugrunde liegt. Die Aussage des Bausteins soll im Satz erkennbar sein.\n`;
+                prompt += `4. **Beispiel für eine unerwünschte, nichtssagende Formulierung:** "Seine Zuverlässigkeit & Organisation sind zufriedenstellend."\n`;
+                prompt += `   **Erwünschte Formulierung (basierend auf einem Baustein wie "achtet meist auf die Vollständigkeit seiner Materialien und die Einhaltung von Terminen"):** "${assessmentData.studentName} achtet beispielsweise meist auf die Vollständigkeit seiner Materialien und die Einhaltung von Terminen." (Diese Formulierung ist gut, aber achte darauf, dass mehrere solcher Sätze die Gesamtlänge nicht sprengen.)\n`;
+                prompt += `5. Variiere den Satzbau. Nicht jeder Satz muss mit "${assessmentData.studentName}" beginnen.\n`;
+                prompt += `6. Bündle thematisch ähnliche Aspekte oder Beobachtungen SEHR STRAFF, um Wiederholungen zu vermeiden und vor allem, um die Wortanzahl einzuhalten. Wenn mehrere positive Aspekte zur Arbeitshaltung vorliegen, fasse diese in einem oder maximal zwei prägnanten Sätzen zusammen.\n`;
+                prompt += `7. Die Tonalität soll ehrlich, pädagogisch wertvoll, anerkennend und konstruktiv sein. Bei weniger positiven Aspekten formuliere entwicklungsfördernd und kurz.\n`;
+                prompt += `8. Verwende korrekte Pronomen und achte auf Grammatik.\n`;
+                prompt += `9. **Strikte Längenbeschränkung: Der gesamte generierte Text darf 70-90 Wörter nicht überschreiten. Priorisiere die wichtigsten Informationen und kürze rigoros, um dieses Ziel zu erreichen. Weniger ist hier mehr.**\n`; // Längenangabe wiederholt und verschärft
 
                 console.log("Verbesserter Gemini Prompt:", prompt);
 
